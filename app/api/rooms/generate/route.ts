@@ -70,7 +70,7 @@ async function persistGeneratedRoom(
 
   return {
     roomId: row.id,
-    createdAt: row.created_at
+    createdAt: new Date(row.created_at).toISOString()
   };
 }
 
