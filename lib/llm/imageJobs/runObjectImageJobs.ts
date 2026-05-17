@@ -2,6 +2,7 @@ import type { LlmProvider } from "@/lib/llm/provider/types";
 import { normalizeImageResponse } from "@/lib/llm/imageJobs/normalizeImageResponse";
 import { downloadOrDecodeImage } from "@/lib/llm/imageJobs/downloadOrDecodeImage";
 import {
+  getPostProcessOutputMimeType,
   isPostProcessableMimeType,
   postProcessAssetBuffer
 } from "@/lib/llm/imageJobs/postProcessImage";
@@ -141,11 +142,17 @@ async function generateSingleObjectImage(
       input.provider.config.timeoutMs
     );
     let processedBuffer = decoded.buffer;
+    let processedMimeType = decoded.mimeType;
 
     if (isPostProcessableMimeType(decoded.mimeType)) {
       try {
         processedBuffer = await postProcessAssetBuffer(
           decoded.buffer,
+          job.assetRole,
+          decoded.mimeType
+        );
+        processedMimeType = getPostProcessOutputMimeType(
+          decoded.mimeType,
           job.assetRole
         );
       } catch (postProcessError) {
@@ -169,7 +176,7 @@ async function generateSingleObjectImage(
       promptText: job.prompt,
       sourceType: decoded.sourceType,
       buffer: processedBuffer,
-      mimeType: decoded.mimeType,
+      mimeType: processedMimeType,
       providerName: input.provider.config.providerName,
       imageMode: input.provider.config.imageMode,
       responseFormat: input.provider.config.imageResponseFormat

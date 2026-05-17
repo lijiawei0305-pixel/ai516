@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import { getSupabaseServerConfig, supabaseRest } from "@/lib/server/supabaseRest";
+import { getSupabaseServerConfig, supabaseStorage } from "@/lib/server/supabaseRest";
 
 const BUCKET = "room-assets";
 const FALLBACK_DIR = path.join(process.cwd(), "public", "generated", "room-assets");
@@ -66,8 +66,13 @@ async function uploadToSupabaseStorage(
     return null;
   }
 
+  const encodedPath = storagePath
+    .split("/")
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+
   const response = await fetch(
-    `${config.url}/storage/v1/object/${BUCKET}/${encodeURIComponent(storagePath)}`,
+    `${config.url}/storage/v1/object/${BUCKET}/${encodedPath}`,
     {
       method: "POST",
       headers: {
@@ -95,18 +100,22 @@ async function createSignedPreviewUrl(storagePath: string) {
     return null;
   }
 
-  const signed = await supabaseRest<{ signedURL: string }>(
-    `object/sign/${BUCKET}/${encodeURIComponent(storagePath)}`,
-    {
-      method: "POST",
-      body: JSON.stringify({ expiresIn: 60 * 60 })
-    },
-    config
-  );
+  try {
+    const signed = await supabaseStorage<{ signedURL: string }>(
+      `object/sign/${BUCKET}`,
+      {
+        method: "POST",
+        body: JSON.stringify({ expiresIn: 60 * 60, path: storagePath })
+      },
+      config
+    );
 
-  return signed.signedURL.startsWith("http")
-    ? signed.signedURL
-    : `${config.url}/storage/v1${signed.signedURL}`;
+    return signed.signedURL.startsWith("http")
+      ? signed.signedURL
+      : `${config.url}/storage/v1${signed.signedURL}`;
+  } catch {
+    return `${config.url}/storage/v1/object/public/${BUCKET}/${storagePath}`;
+  }
 }
 
 async function writeLocalFallbackFile(storagePath: string, buffer: Buffer) {

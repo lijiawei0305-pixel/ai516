@@ -1,0 +1,12 @@
+- alert
+- main:
+  - main:
+    - img "正在生成小屋"
+    - generic: 生成失败，请稍后再试。
+    - link "返回创建页":
+      - /url: /create
+      - generic: 返回创建页
+    - paragraph: 生成失败，请稍后再试。
+    - link "回到信纸重试":
+      - /url: /create
+      - text: 回到信纸重试

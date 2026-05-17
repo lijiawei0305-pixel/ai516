@@ -49,35 +49,41 @@ export async function storeGeneratedAsset(
   const config = getSupabaseServerConfig();
 
   if (config) {
-    await supabaseRest(
-      "room_assets",
-      {
-        method: "POST",
-        body: JSON.stringify({
-          id: assetId,
-          room_id: input.roomId,
-          creator_id: input.creatorId,
-          storage_path: uploaded.storagePath,
-          public_url: uploaded.publicUrl,
-          object_id: input.objectId,
-          layer_role: layerRole,
-          signed_url_strategy: {
-            mode: uploaded.storageMode === "supabase" ? "signed" : "local",
-            ttl_seconds: uploaded.storageMode === "supabase" ? 3600 : null,
-            provider_name: input.providerName,
-            image_mode: input.imageMode,
-            response_format: input.responseFormat,
+    try {
+      await supabaseRest(
+        "room_assets",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            id: assetId,
+            room_id: input.roomId,
+            creator_id: input.creatorId,
+            storage_path: uploaded.storagePath,
+            public_url: uploaded.publicUrl,
             object_id: input.objectId,
             layer_role: layerRole,
-            asset_role: input.assetRole ?? "clue_object_sprite"
-          },
-          asset_type: "image",
-          role: "clue_image",
-          safe_description: input.objectName
-        })
-      },
-      config
-    );
+            signed_url_strategy: {
+              mode: uploaded.storageMode === "supabase" ? "signed" : "local",
+              ttl_seconds: uploaded.storageMode === "supabase" ? 3600 : null,
+              provider_name: input.providerName,
+              image_mode: input.imageMode,
+              response_format: input.responseFormat,
+              object_id: input.objectId,
+              layer_role: layerRole,
+              asset_role: input.assetRole ?? "clue_object_sprite"
+            },
+            asset_type: "image",
+            role: "clue_image",
+            safe_description: input.objectName
+          })
+        },
+        config
+      );
+    } catch (error) {
+      console.warn(
+        `[storeGeneratedAsset] room_assets insert failed (non-fatal): ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
   }
 
   return {

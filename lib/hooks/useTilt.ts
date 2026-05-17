@@ -80,14 +80,38 @@ export function useTilt({
       schedule(ZERO_TILT);
     }
 
+    let baseGamma: number | null = null;
+    let baseBeta: number | null = null;
+
     function updateFromDevice(event: DeviceOrientationEvent) {
-      if (typeof event.gamma !== "number" || typeof event.beta !== "number") {
+      let { gamma, beta } = event;
+      if (typeof gamma !== "number" || typeof beta !== "number") {
         return;
       }
 
+      // Handle orientation changes (landscape vs portrait)
+      const orientation = (window.screen?.orientation?.type || window.orientation || "") as string | number;
+      const isLandscape = typeof orientation === "string" ? orientation.includes("landscape") : Math.abs(orientation as number) === 90;
+
+      if (isLandscape) {
+        const tmp = gamma;
+        gamma = beta;
+        beta = -tmp;
+      }
+
+      if (baseGamma === null) baseGamma = gamma;
+      if (baseBeta === null) baseBeta = beta;
+
+      // Low pass filter to slowly re-center the baseline (drift)
+      baseGamma = baseGamma * 0.95 + gamma * 0.05;
+      baseBeta = baseBeta * 0.95 + beta * 0.05;
+
+      const diffGamma = gamma - baseGamma;
+      const diffBeta = beta - baseBeta;
+
       schedule({
-        x: clamp(event.gamma / maxDeviceTilt, -1, 1),
-        y: clamp(event.beta / maxDeviceTilt, -1, 1),
+        x: clamp(diffGamma / maxDeviceTilt, -1, 1),
+        y: clamp(diffBeta / maxDeviceTilt, -1, 1),
         active: true
       });
     }
@@ -99,14 +123,54 @@ export function useTilt({
     if (target) {
       target.addEventListener("pointerleave", resetTilt, { passive: true });
     }
-    window.addEventListener("deviceorientation", updateFromDevice, { passive: true });
+
+    // Attempt to bind gyroscope, with fallback for iOS 13+ permission flow
+    let isGyroBound = false;
+    let handleGesture: (() => Promise<void>) | null = null;
+
+    function bindGyro() {
+      if (!isGyroBound) {
+        window.addEventListener("deviceorientation", updateFromDevice, { passive: true });
+        isGyroBound = true;
+      }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (typeof (window as any).DeviceOrientationEvent?.requestPermission === "function") {
+      handleGesture = async () => {
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const permission = await (window as any).DeviceOrientationEvent.requestPermission();
+          if (permission === "granted") {
+            bindGyro();
+          }
+        } catch (error) {
+          // Ignore
+        }
+        if (handleGesture) {
+          document.removeEventListener("click", handleGesture);
+          document.removeEventListener("touchend", handleGesture);
+        }
+      };
+      
+      document.addEventListener("click", handleGesture);
+      document.addEventListener("touchend", handleGesture);
+    } else {
+      bindGyro();
+    }
 
     return () => {
       pointerHost.removeEventListener("pointermove", updateFromPointer as EventListener);
       if (target) {
         target.removeEventListener("pointerleave", resetTilt);
       }
-      window.removeEventListener("deviceorientation", updateFromDevice);
+      if (isGyroBound) {
+        window.removeEventListener("deviceorientation", updateFromDevice);
+      }
+      if (handleGesture) {
+        document.removeEventListener("click", handleGesture);
+        document.removeEventListener("touchend", handleGesture);
+      }
       if (rafId !== null) {
         window.cancelAnimationFrame(rafId);
       }

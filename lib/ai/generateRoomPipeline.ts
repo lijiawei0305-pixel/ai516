@@ -17,15 +17,14 @@ import {
   type StructuredLlmClient
 } from "@/lib/ai/schemas";
 import type { AiProviderConfig } from "@/lib/ai/adminConfig";
-import {
-  generateOpenAiCompatibleImage,
-  type ImageGenerationRequest
-} from "@/lib/ai/openAiCompatible";
-import {
-  persistGeneratedImage,
-  type PersistedGeneratedImage
-} from "@/lib/ai/imageStorage";
 import { buildRoomJson } from "@/lib/room/buildRoomJson";
+import type { LlmProvider } from "@/lib/llm/provider/types";
+import {
+  runObjectImageJobs,
+  type ObjectImageJobResult,
+  type ObjectImageJobSuccess
+} from "@/lib/llm/imageJobs/runObjectImageJobs";
+import type { ImageGenerationJob, RoomAssetPlan } from "@/lib/llm/pipeline/types";
 
 const HEART_CABIN_STYLE = [
   "旧纸手账风",
@@ -42,25 +41,18 @@ const HEART_CABIN_STYLE = [
 ].join("，");
 
 const CLUE_OBJECT_SPRITE_TEMPLATE = [
-  "single isolated 2.5D game prop asset",
-  "placed inside a cozy handmade cardboard miniature room",
-  "slightly isometric top-front view, around 45 degree camera angle",
-  "bottom-center anchor feeling",
-  "standing on a floor",
-  "soft contact shadow under the object",
+  "single isolated 2.5D miniature clue object sprite",
+  "standalone prop for compositing into a room later",
+  "isometric top-front view, around 45 degree camera angle",
+  "whole object fully visible",
+  "object occupies about 60 percent of the square canvas with generous margins",
+  "transparent PNG background or uniform plain background for easy cutout",
+  "subtle contact shadow directly under the object",
   "handmade cardboard and old paper texture",
   "warm cozy lighting from upper left",
-  "clean cutout",
-  "transparent background if supported",
   "readable at mobile size",
-  "no full room background",
-  "no flat sticker",
-  "no icon",
-  "no front-facing illustration",
-  "no text",
-  "no neon",
-  "no cyberpunk",
-  "no photorealistic product photo"
+  "no room background, no walls, no furniture around it",
+  "no multiple objects, no text, no neon, no cyberpunk"
 ].join(", ");
 
 const ROOM_SHELL_BACKGROUND_TEMPLATE = [
@@ -96,13 +88,12 @@ const NARRATIVE_SYSTEM_PROMPT = [
 
 const IMAGE_PROMPT_SYSTEM_PROMPT = [
   "你是《心事小屋》的线索物件图像提示词设计师，只输出符合 JSON Schema 的对象。",
-  "不要指望生图模型直接生成完整可玩的 2.5D 房间；当前旧入口只生成 5 个 clue_object_sprite，前端负责房间壳、y-sort、接地阴影、前景遮挡和底部中心锚点。",
-  "每张图只画一个小屋中的线索物件 sprite，不是完整大场景。",
+  "每张图只画一个独立的线索物件 sprite（不是完整房间场景）。",
   `统一视觉风格：${HEART_CABIN_STYLE}。`,
-  `每个 prompt 必须包含或等价表达：${CLUE_OBJECT_SPRITE_TEMPLATE}。`,
-  `房间壳背景由新版 pipeline 使用此模板单独生成：${ROOM_SHELL_BACKGROUND_TEMPLATE}。`,
-  "提示词必须适合图像模型直接生成，并明确透明或干净背景，方便前端组合进 2.5D 小屋。",
-  "禁止科技感、赛博风、玻璃拟态、金属 UI、霓虹、可读文字、正面扁平贴纸。"
+  "重要：每个 prompt 必须简短，控制在 150-250 字符以内，只描述物件核心外观。",
+  "重要：negativePrompt 控制在 80 字符以内，只写最关键的 3-5 个排除词。",
+  "不要在 prompt 中重复模板内容，系统会自动拼接风格模板。",
+  "禁止科技感、赛博风、霓虹、可读文字。"
 ].join("\n");
 
 function buildStructuredPrompt(task: string, payload: unknown) {
@@ -203,14 +194,18 @@ async function generateImagePrompts(
   );
 }
 
-async function generateAndPersistImage(
-  config: AiProviderConfig,
-  request: ImageGenerationRequest,
-  objectId: string
-): Promise<PersistedGeneratedImage> {
-  const image = await generateOpenAiCompatibleImage(config, request);
+function composeClueObjectPrompt(prompt: string) {
+  const normalized = prompt.trim();
 
-  return persistGeneratedImage(image, objectId);
+  if (!normalized) {
+    return CLUE_OBJECT_SPRITE_TEMPLATE;
+  }
+
+  if (normalized.includes(CLUE_OBJECT_SPRITE_TEMPLATE)) {
+    return normalized;
+  }
+
+  return `${CLUE_OBJECT_SPRITE_TEMPLATE}, ${normalized}`;
 }
 
 function assertNarrative(output: RoomNarrativeOutput, sentence: string) {
@@ -253,7 +248,7 @@ function assertNarrative(output: RoomNarrativeOutput, sentence: string) {
   const leaked = publicStrings.some((value) => {
     const normalizedValue = value.replace(/\s+/g, "");
 
-    if (normalizedSentence.length < 8) {
+    if (normalizedSentence.length < 10) {
       return normalizedValue.includes(normalizedSentence);
     }
 
@@ -261,7 +256,7 @@ function assertNarrative(output: RoomNarrativeOutput, sentence: string) {
       return true;
     }
 
-    if (normalizedValue.length >= 6 && normalizedSentence.includes(normalizedValue)) {
+    if (normalizedValue.length >= 10 && normalizedSentence.includes(normalizedValue)) {
       return true;
     }
 
@@ -278,13 +273,47 @@ export type GeneratedRoomPipelineResult = {
   roomJson: Record<string, unknown>;
   analysis: SecretAnalysisOutput;
   imagePrompts: ClueImagePromptOutput;
+  objectAssets: ObjectImageJobResult[];
 };
+
+function buildImageJobs(
+  narrative: RoomNarrativeOutput,
+  imagePrompts: ClueImagePromptOutput
+): ImageGenerationJob[] {
+  const promptByObjectId = new Map(
+    imagePrompts.objects.map((object) => [
+      object.objectId,
+      {
+        ...object,
+        prompt: composeClueObjectPrompt(object.prompt)
+      }
+    ])
+  );
+
+  return narrative.objects.map((object, index) => {
+    const imagePrompt = promptByObjectId.get(object.id);
+    const prompt = imagePrompt?.prompt ?? composeClueObjectPrompt(object.visualDescription);
+
+    return {
+      jobId: `clue_${object.id}_${index}`,
+      objectId: object.id,
+      objectName: object.name,
+      assetRole: "clue_object_sprite" as const,
+      prompt,
+      negativePrompt: imagePrompt?.negativePrompt ?? null,
+      size: "1024x1024" as const,
+      providerMode: "images_api" as const,
+      responseFormat: "auto" as const
+    };
+  });
+}
 
 export async function generateRoomWithImages(
   input: GenerateRoomFromSecretInput,
   client: StructuredLlmClient,
   config: AiProviderConfig,
-  roomId = `room_${crypto.randomUUID()}`
+  roomId = `room_${crypto.randomUUID()}`,
+  provider?: LlmProvider | null
 ): Promise<GeneratedRoomPipelineResult> {
   const parsedInput = generateRoomFromSecretInputSchema.parse(input);
   const analysis = await analyzeSecret(parsedInput, client);
@@ -293,71 +322,149 @@ export async function generateRoomWithImages(
   assertNarrative(narrative, parsedInput.sentence);
 
   const imagePrompts = await generateImagePrompts(narrative, analysis, client);
-  for (const prompt of imagePrompts.objects) {
-    if (!prompt.prompt.includes("single isolated 2.5D game prop asset")) {
-      throw new Error(
-        `Generated image prompt missing 2.5D prop asset requirement for ${prompt.objectId}`
-      );
-    }
-  }
-  const promptByObjectId = new Map(
-    imagePrompts.objects.map((object) => [object.objectId, object])
-  );
-  const imageResults = await Promise.all(
-    narrative.objects.map(async (object) => {
-      const imagePrompt = promptByObjectId.get(object.id);
+  const jobs = buildImageJobs(narrative, imagePrompts);
 
-      if (!imagePrompt) {
-        throw new Error(`Missing image prompt for room object ${object.id}`);
-      }
+  let objectAssets: ObjectImageJobResult[];
 
-      const persisted = await generateAndPersistImage(
-        config,
-        {
-          prompt: imagePrompt.prompt,
-          size: "1024x1024"
+  if (provider) {
+    const minimalRoomAssetPlan: RoomAssetPlan = {
+      semanticAnalysis: {
+        coreEmotion: analysis.coreEmotion,
+        emotionalTone: analysis.relationshipContext,
+        relationshipContext: analysis.relationshipContext,
+        hiddenMeaning: analysis.implicitNeed,
+        keySubtexts: analysis.metaphorSeeds.slice(0, 3),
+        metaphorDirections: analysis.metaphorSeeds,
+        difficultyLevel: "medium",
+        safetyAssessment: { allowed: true, reason: null }
+      },
+      roomDesign: {
+        roomTitle: narrative.roomTitle,
+        publicTitle: narrative.publicTitle,
+        emotionType: narrative.emotionType,
+        visualTheme: "old_paper_dollhouse",
+        objectConcepts: narrative.objects.map((obj) => ({
+          id: obj.id,
+          name: obj.name,
+          metaphor: obj.visualDescription,
+          clue: obj.clue,
+          keyword: obj.keyword,
+          sceneRole: obj.positionHint,
+          preferredAssetType: "other" as const,
+          positionHint: obj.positionHint
+        })),
+        choiceOptions: narrative.choices.map((c) => ({
+          id: c.id,
+          text: c.text,
+          explanation: c.text
+        })),
+        correctChoiceIndex: narrative.choices.findIndex((c) => c.isCorrect),
+        petPersonaHints: {
+          type: narrative.pet.type === "dog" ? "dog" as const : "cat" as const,
+          temperament: narrative.pet.personality,
+          comfortBehavior: narrative.pet.personality,
+          safetyBehavior: narrative.pet.safetyBehavior
+        }
+      },
+      imagePromptPlan: {
+        roomShellBackgroundPrompt: {
+          positivePrompt: ROOM_SHELL_BACKGROUND_TEMPLATE,
+          negativePrompt: null,
+          size: "1024x1024",
+          styleTags: HEART_CABIN_STYLE.split("，").slice(0, 8),
+          renderIntent: "room shell background"
         },
-        object.id
-      );
+        objectImagePrompts: narrative.objects.map((obj) => {
+          const ip = imagePrompts.objects.find((p) => p.objectId === obj.id);
+          return {
+            objectId: obj.id,
+            positivePrompt: ip ? composeClueObjectPrompt(ip.prompt) : composeClueObjectPrompt(obj.visualDescription),
+            negativePrompt: ip?.negativePrompt ?? null,
+            size: "1024x1024" as const,
+            styleTags: HEART_CABIN_STYLE.split("，").slice(0, 8),
+            renderIntent: obj.visualDescription
+          };
+        }),
+        petSpritePrompt: {
+          petType: narrative.pet.type === "dog" ? "dog" as const : "cat" as const,
+          positivePrompt: "cute paper craft pet sprite",
+          negativePrompt: null,
+          size: "1024x1024",
+          styleTags: HEART_CABIN_STYLE.split("，").slice(0, 8),
+          renderIntent: "pet sprite"
+        },
+        foregroundOccluderPrompt: {
+          positivePrompt: "paper foreground occluder",
+          negativePrompt: null,
+          size: "1024x1024",
+          styleTags: HEART_CABIN_STYLE.split("，").slice(0, 8),
+          renderIntent: "foreground layer"
+        },
+        sharedStylePrompt: HEART_CABIN_STYLE
+      },
+      generationPlan: {
+        maxConcurrentImageJobs: provider.config.maxConcurrentImageJobs,
+        jobs
+      }
+    };
 
-      return [object.id, persisted] as const;
-    })
+    const imageResult = await runObjectImageJobs({
+      roomId,
+      creatorId: "anonymous",
+      provider,
+      roomAssetPlan: minimalRoomAssetPlan
+    });
+
+    objectAssets = imageResult.roomAssetResults;
+    console.log(
+      `[generateRoomWithImages] image generation: ${imageResult.generationSummary.successCount} success, ${imageResult.generationSummary.failedCount} failed`
+    );
+  } else {
+    objectAssets = jobs.map((job) => ({
+      objectId: job.objectId,
+      objectName: job.objectName,
+      assetRole: "clue_object_sprite" as const,
+      status: "failed" as const,
+      error: "NO_IMAGE_PROVIDER",
+      retryable: false,
+      fallbackPlan: { kind: "placeholder" as const, reason: "no provider configured" }
+    }));
+  }
+
+  const successAssets = objectAssets.filter(
+    (a): a is ObjectImageJobSuccess => a.status === "success"
   );
-  const imageByObjectId = new Map(imageResults);
+  const assetUrlMap = new Map(
+    successAssets.map((a) => [a.objectId, a.publicUrl ?? ""])
+  );
+
+  const promptByObjectId = new Map(
+    imagePrompts.objects.map((object) => [
+      object.objectId,
+      { ...object, prompt: composeClueObjectPrompt(object.prompt) }
+    ])
+  );
+
   const objects = narrative.objects.map((object) => {
     const imagePrompt = promptByObjectId.get(object.id);
-    const image = imageByObjectId.get(object.id);
+    const asset = successAssets.find((a) => a.objectId === object.id);
 
     return {
       ...object,
       imagePrompt: imagePrompt?.prompt ?? null,
       negativePrompt: imagePrompt?.negativePrompt ?? null,
-      imageUrl: image?.url ?? null,
-      imageStoragePath: image?.storagePath ?? null,
-      imageSourceType: image?.sourceType ?? null
+      imageUrl: assetUrlMap.get(object.id) ?? null,
+      imageStoragePath: asset?.storagePath ?? null,
+      imageSourceType: asset?.sourceType ?? null
     };
   });
+
   const room: GenerateRoomFromSecretOutput = {
     ...narrative,
     hiddenMeaning: narrative.hiddenMeaning.trim(),
     objects
   };
-  const objectAssets = imageResults.map(([objectId, image]) => {
-    const object = narrative.objects.find((item) => item.id === objectId);
 
-    return {
-      objectId,
-      objectName: object?.name ?? objectId,
-      assetRole: "clue_object_sprite" as const,
-      layerRole: "main" as const,
-      status: "success" as const,
-      assetId: objectId,
-      storagePath: image.storagePath ?? "",
-      publicUrl: image.url,
-      sourceType: image.sourceType,
-      mimeType: image.mimeType ?? "image/png"
-    };
-  });
   const roomJson = buildRoomJson({
     roomId,
     originalSentence: parsedInput.sentence,
@@ -369,9 +476,9 @@ export async function generateRoomWithImages(
     room,
     objectAssets,
     generation: {
-      imageGenerationMode: config.imageGenerationMode,
+      imageGenerationMode: provider?.config.imageMode ?? config.imageGenerationMode,
       chatModel: config.chatModel,
-      imageModel: config.imageModel
+      imageModel: provider?.config.imageModel ?? config.imageModel
     }
   });
 
@@ -379,6 +486,7 @@ export async function generateRoomWithImages(
     room,
     roomJson: roomJson as unknown as Record<string, unknown>,
     analysis,
-    imagePrompts
+    imagePrompts,
+    objectAssets
   };
 }

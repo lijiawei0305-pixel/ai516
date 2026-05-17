@@ -1,0 +1,22 @@
+- alert
+- main:
+  - main:
+    - img "写下心事页面"
+    - button "选择线索图片"
+    - link "返回首页":
+      - /url: /
+      - generic: 返回首页
+    - generic "选择线索图片"
+    - textbox "写下心事":
+      - /placeholder: 写下一句不太好意思直接说的话……
+    - button "选择想念":
+      - generic: 想念
+    - button "选择压力":
+      - generic: 压力
+    - button "选择吐槽":
+      - generic: 吐槽
+    - button "选择暗恋":
+      - generic: 暗恋
+    - button "选择小确幸":
+      - generic: 小确幸
+    - button "生成我的心事小屋"

@@ -13,7 +13,12 @@ const runJobsSource = readFileSync(
 
 assert.match(postProcessSource, /import sharp from "sharp"/);
 assert.match(postProcessSource, /export async function postProcessAssetBuffer/);
+assert.match(postProcessSource, /export \{ getPostProcessOutputMimeType \}/);
 assert.match(postProcessSource, /export function isPostProcessableMimeType/);
+assert.match(postProcessSource, /normalizeSpriteCanvas/);
+assert.match(postProcessSource, /floodFillBackgroundMask/);
+assert.match(postProcessSource, /ensureAlpha\(\)/);
+assert.match(postProcessSource, /extract\(\{/);
 assert.match(postProcessSource, /\.modulate\(/);
 assert.match(postProcessSource, /\.linear\(/);
 assert.match(postProcessSource, /\.composite\(/);
@@ -24,6 +29,7 @@ assert.match(postProcessSource, /room_shell_background/);
 assert.match(runJobsSource, /import \{[\s\S]*postProcessAssetBuffer[\s\S]*\} from "@\/lib\/llm\/imageJobs\/postProcessImage"/);
 assert.match(runJobsSource, /isPostProcessableMimeType\(decoded\.mimeType\)/);
 assert.match(runJobsSource, /postProcessAssetBuffer\(\s*decoded\.buffer/);
+assert.match(runJobsSource, /getPostProcessOutputMimeType/);
 assert.match(runJobsSource, /buffer: processedBuffer/);
 assert.match(runJobsSource, /console\.warn\(/);
 

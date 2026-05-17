@@ -1,0 +1,5 @@
+- main:
+  - button "返回首页":
+  - heading "小屋广场" [level=1]
+  - paragraph: 正在加载…
+- alert

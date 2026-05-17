@@ -47,7 +47,13 @@
       "WebFetch(domain:wu.ccchhxx.top)",
       "Bash(grep -E \"\\(Done|online|errored|[0-9]{3}$\\)\")",
       "Bash(npx supabase *)",
-      "Bash(PGPASSWORD=weSJ7rKEjLvmNdrj psql *)"
+      "Bash(PGPASSWORD=weSJ7rKEjLvmNdrj psql *)",
+      "Bash(chmod 600 /tmp/deploy_key)",
+      "Bash(rsync -az --delete -e \"ssh -i /tmp/deploy_key -p 5522 -o StrictHostKeyChecking=no\" .next/standalone/ root@154.202.118.249:/opt/ai516/ --exclude node_modules/.cache)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(rsync -az --delete -e \"ssh -i /tmp/deploy_key -p 5522 -o StrictHostKeyChecking=no\" --exclude ecosystem.config.js --exclude node_modules .next/standalone/ root@154.202.118.249:/opt/ai516/)",
+      "Bash(rsync -az -e \"ssh -i /tmp/deploy_key -p 5522 -o StrictHostKeyChecking=no\" .next/static/ root@154.202.118.249:/opt/ai516/.next/static/)",
+      "Bash(rsync -az -e \"ssh -i /tmp/deploy_key -p 5522 -o StrictHostKeyChecking=no\" public/ root@154.202.118.249:/opt/ai516/public/)"
     ]
   }
 }

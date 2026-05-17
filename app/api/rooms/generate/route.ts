@@ -4,6 +4,7 @@ import { apiError, jsonResponse, parseJsonBody } from "@/lib/api/http";
 import { getAiProviderConfigFromEnv } from "@/lib/ai/adminConfig";
 import { generateRoomWithImages } from "@/lib/ai/generateRoomPipeline";
 import { createOpenAiCompatibleStructuredClient } from "@/lib/ai/openAiCompatible";
+import { LlmValidationError } from "@/lib/ai/schemas";
 import { generateRoomService } from "@/lib/api/mock-services";
 import {
   generateRoomRequestSchema,
@@ -16,6 +17,7 @@ import {
   getSupabaseServerConfig,
   supabaseRest
 } from "@/lib/server/supabaseRest";
+import { createProviderFromEnv } from "@/lib/llm/provider/createProviderFromEnv";
 
 async function persistGeneratedRoom(
   request: Request,
@@ -94,6 +96,7 @@ export async function POST(request: Request) {
 
   try {
     const llmClient = createOpenAiCompatibleStructuredClient(aiConfig);
+    const imageProvider = createProviderFromEnv();
     const roomId = crypto.randomUUID();
     const generated = await generateRoomWithImages(
       {
@@ -107,7 +110,8 @@ export async function POST(request: Request) {
       },
       llmClient,
       aiConfig,
-      roomId
+      roomId,
+      imageProvider
     );
     const persisted = await persistGeneratedRoom(
       request,
@@ -128,11 +132,24 @@ export async function POST(request: Request) {
 
     return jsonResponse(generateRoomResponseSchema, response, 201);
   } catch (error) {
+    console.error("[rooms/generate] room generation failed", error);
+    const details =
+      error instanceof LlmValidationError
+        ? [
+            error.message,
+            ...error.issues.slice(0, 4).map((issue) => {
+              const path = issue.path.length > 0 ? issue.path.join(".") : "root";
+              return `${path}: ${issue.message}`;
+            })
+          ].join(" | ")
+        : error instanceof Error
+          ? error.message
+          : String(error);
     return apiError(
       "room_generation_failed",
       "Room generation failed",
       502,
-      error instanceof Error ? error.message : String(error)
+      details
     );
   }
 }

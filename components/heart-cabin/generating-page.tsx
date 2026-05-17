@@ -63,7 +63,11 @@ export function GeneratingPage() {
 
       if (!response.ok) {
         const payload = await response.json().catch(() => null);
-        throw new Error(payload?.error?.message ?? "生成失败，请稍后再试。");
+        const details =
+          typeof payload?.error?.details === "string"
+            ? payload.error.details
+            : null;
+        throw new Error(details || payload?.error?.message || "生成失败，请稍后再试。");
       }
 
       const payload = (await response.json()) as { redirectUrl?: string };

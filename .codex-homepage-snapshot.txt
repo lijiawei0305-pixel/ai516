@@ -1,0 +1,12 @@
+- main:
+  - main:
+    - img "心事小屋首页"
+    - heading "把一句话，藏进一间小屋" [level=1]
+    - paragraph: 写下一句不太好意思直接说的话，让 AI 把它变成一间可以被朋友破解的秘密小屋。
+    - link "把心事藏起来":
+      - /url: /create
+      - generic: 把心事藏起来
+    - link "看看别人怎么藏":
+      - /url: /rooms
+      - generic: 看看别人怎么藏
+- alert
