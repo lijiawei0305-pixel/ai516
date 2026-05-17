@@ -11,6 +11,9 @@ import {
   type SemanticAnalysis
 } from "@/lib/llm/pipeline/types";
 
+const SHARED_LIGHTING_PROMPT =
+  "single key light at 60 degrees from upper left, soft fill 0.3 from right, rim light from back right, consistent across all assets in this room";
+
 const CLUE_OBJECT_PROMPT_REQUIREMENTS = [
   "single isolated 2.5D game prop asset",
   "placed inside a cozy handmade cardboard miniature room",
@@ -18,15 +21,24 @@ const CLUE_OBJECT_PROMPT_REQUIREMENTS = [
   "bottom-center anchor feeling",
   "standing on a floor",
   "soft contact shadow under the object",
+  "diorama miniature photography",
+  "shallow depth of field",
+  "visible volume shading on the side of the object",
+  "rim light from the window side",
+  "painterly brushwork with subtle handmade texture",
   "handmade cardboard and old paper texture",
-  "warm cozy lighting from upper left",
-  "clean cutout",
-  "transparent background if supported",
+  SHARED_LIGHTING_PROMPT,
+  "isolated on a cream paper backdrop, no full scene",
+  "clean cutout silhouette",
   "readable at mobile size",
   "no full room background",
   "no flat sticker",
+  "no flat 2D",
+  "no decal",
+  "no clip art",
   "no icon",
   "no front-facing illustration",
+  "no centered isolated product photo",
   "no text",
   "no neon",
   "no cyberpunk",
@@ -40,7 +52,9 @@ const ROOM_SHELL_BACKGROUND_PROMPT_REQUIREMENTS = [
   "back wall, left wall, right wall, warm floor",
   "window, lamp, bookshelf, desk base, plants",
   "clear empty spaces for 5 interactive clue objects",
-  "warm light from upper left",
+  "diorama miniature photography",
+  "visible volume shading on walls and floor edges",
+  SHARED_LIGHTING_PROMPT,
   "soft corner shadows",
   "no main clue objects",
   "no characters",
@@ -54,15 +68,23 @@ const PET_SPRITE_PROMPT_REQUIREMENTS = [
   "bottom-center anchor feeling",
   "standing on a floor",
   "soft contact shadow under the pet",
+  "diorama miniature photography",
+  "visible volume shading on the side of the body",
+  "rim light from the window side",
+  "painterly brushwork with subtle handmade texture",
   "handmade cardboard and old paper texture",
-  "warm cozy lighting from upper left",
-  "clean cutout",
-  "transparent background if supported",
+  SHARED_LIGHTING_PROMPT,
+  "isolated on a cream paper backdrop, no full scene",
+  "clean cutout silhouette",
   "readable at mobile size",
   "no full room background",
   "no flat sticker",
+  "no flat 2D",
+  "no decal",
+  "no clip art",
   "no icon",
   "no front-facing illustration",
+  "no centered isolated product photo",
   "no text",
   "no neon",
   "no cyberpunk",
@@ -75,13 +97,17 @@ const FOREGROUND_OCCLUDER_PROMPT_REQUIREMENTS = [
   "old paper scrapbook style",
   "table edge, door frame, rug edge, or cardboard floor lip",
   "slightly isometric top-front view, around 45 degree camera angle",
-  "wide clean cutout",
-  "transparent background if supported",
-  "warm cozy lighting from upper left",
+  "diorama miniature photography",
+  "visible volume shading on the edge thickness",
+  "wide clean cutout silhouette",
+  SHARED_LIGHTING_PROMPT,
   "designed to overlap sprites in front",
   "no clue object",
   "no characters",
   "no readable text",
+  "no flat 2D",
+  "no decal",
+  "no clip art",
   "no neon",
   "no cyberpunk",
   "no photorealistic product photo"
@@ -99,8 +125,12 @@ const SHARED_STYLE_PROMPT = [
 
 const DEFAULT_NEGATIVE_PROMPT = [
   "no flat sticker",
+  "no flat 2D",
+  "no decal",
+  "no clip art",
   "no icon",
   "no front-facing illustration",
+  "no centered isolated product photo",
   "no full room background for sprites",
   "no realistic product photography",
   "no photorealistic product photo",
@@ -146,6 +176,9 @@ const IMAGE_PROMPT_SYSTEM_PROMPT = [
   "pet_sprite 必须是小猫或小狗宠物 sprite，视角和材质要与线索物件一致。",
   "foreground_occluder 必须是能在前端覆盖物件的前景遮挡素材，例如桌边、门框、地毯边缘或纸板地板前缘。",
   "目标不是复制《元气骑士》的美术素材，只借鉴 2.5D 空间组织方式；《心事小屋》必须保持旧纸、手账、纸板、暖光、秘密小屋风格。",
+  "所有素材必须保持同一光源参数（左上 60 度主光、右侧 0.3 柔补光、后右描边光），且都带体积侧阴影与边缘光，避免平贴图。",
+  "不再要求 transparent background，而是统一输出在 cream paper backdrop 上，后端会做色温与抠图后处理。",
+  "对 plant、window、moon、bookshelf 类语义的线索物件，可以在 objectImagePrompts[i].layers 中额外输出 2-3 层（role 为 back / mid / front）以制造纸艺立体感：例如 plant 拆为 back=陶盆、mid=主茎与叶丛、front=最前方一两片大叶或花苞；window 拆为 back=远景月亮夜空、front=窗框与百叶。每层 positivePrompt 仅描述该层包含的视觉内容（明确写出 only / no others / isolated 等限制），共享主体的 positivePrompt 风格描述。其他物件保持单层（不要 layers 字段或留空）。",
   "不要生成科技风、赛博风、玻璃拟态、写实摄影棚商品图、可读文字或霓虹。",
   "输出必须结构化 JSON，不能包含自由散文。"
 ].join("\n");
@@ -257,7 +290,13 @@ function assertImagePromptPlan(plan: ImagePromptPlan, roomDesign: RoomDesign) {
     "bottom-center anchor feeling",
     "standing on a floor",
     "soft contact shadow under the object",
-    "no flat sticker"
+    "diorama miniature photography",
+    "visible volume shading on the side of the object",
+    "rim light from the window side",
+    "isolated on a cream paper backdrop",
+    "no flat sticker",
+    "no flat 2D",
+    "no decal"
   ];
 
   for (const prompt of plan.objectImagePrompts) {
@@ -323,29 +362,55 @@ export function buildRoomAssetPlan(
   const objectById = new Map(
     roomDesign.objectConcepts.map((object) => [object.id, object])
   );
-  const clueJobs = imagePromptPlan.objectImagePrompts.map((prompt) => {
+  const clueJobs = imagePromptPlan.objectImagePrompts.flatMap((prompt) => {
     const object = objectById.get(prompt.objectId);
 
     if (!object) {
       throw new Error(`GENERATION_PLAN_UNKNOWN_OBJECT_${prompt.objectId}`);
     }
 
-    return {
-      jobId: `job_${prompt.objectId}`,
-      objectId: prompt.objectId,
-      objectName: object.name,
-      assetRole: "clue_object_sprite",
-      prompt: [imagePromptPlan.sharedStylePrompt, prompt.positivePrompt]
-        .filter(Boolean)
-        .join(", "),
-      negativePrompt:
-        prompt.negativePrompt ||
-        provider.config.negativePrompt ||
-        DEFAULT_NEGATIVE_PROMPT,
-      size: prompt.size || provider.config.defaultImageSize,
-      providerMode: provider.config.imageMode,
-      responseFormat: provider.config.imageResponseFormat
-    };
+    const baseNegative =
+      prompt.negativePrompt ||
+      provider.config.negativePrompt ||
+      DEFAULT_NEGATIVE_PROMPT;
+    const baseSize = prompt.size || provider.config.defaultImageSize;
+
+    if (prompt.layers && prompt.layers.length > 0) {
+      return prompt.layers.map((layer) => ({
+        jobId: `job_${prompt.objectId}_${layer.role}`,
+        objectId: prompt.objectId,
+        objectName: object.name,
+        assetRole: "clue_object_sprite" as const,
+        layerRole: layer.role,
+        prompt: [
+          imagePromptPlan.sharedStylePrompt,
+          prompt.positivePrompt,
+          layer.positivePrompt
+        ]
+          .filter(Boolean)
+          .join(", "),
+        negativePrompt: layer.negativePrompt || baseNegative,
+        size: baseSize,
+        providerMode: provider.config.imageMode,
+        responseFormat: provider.config.imageResponseFormat
+      }));
+    }
+
+    return [
+      {
+        jobId: `job_${prompt.objectId}`,
+        objectId: prompt.objectId,
+        objectName: object.name,
+        assetRole: "clue_object_sprite" as const,
+        prompt: [imagePromptPlan.sharedStylePrompt, prompt.positivePrompt]
+          .filter(Boolean)
+          .join(", "),
+        negativePrompt: baseNegative,
+        size: baseSize,
+        providerMode: provider.config.imageMode,
+        responseFormat: provider.config.imageResponseFormat
+      }
+    ];
   });
   const backgroundPrompt = imagePromptPlan.roomShellBackgroundPrompt;
   const petPrompt = imagePromptPlan.petSpritePrompt;

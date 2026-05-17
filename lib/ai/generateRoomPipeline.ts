@@ -340,6 +340,7 @@ export async function generateRoomWithImages(
       objectId,
       objectName: object?.name ?? objectId,
       assetRole: "clue_object_sprite" as const,
+      layerRole: "main" as const,
       status: "success" as const,
       assetId: objectId,
       storagePath: image.storagePath ?? "",

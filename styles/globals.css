@@ -22,6 +22,10 @@
   --room-shadow-blur: 9px;
   --room-shadow-color: rgba(45, 27, 15, 0.28);
   --room-sprite-shadow: var(--room-shadow-x) var(--room-shadow-y) var(--room-shadow-blur) var(--room-shadow-color);
+  --room-sprite-shadow-soft: 0 16px 22px rgba(45, 27, 15, 0.14);
+  --room-rim-x: 4px;
+  --room-rim-y: -3px;
+  --room-rim-color: rgba(255, 240, 200, 0.65);
   --font-handbook-serif: "Songti SC";
   --font-handbook-sans: "PingFang SC";
 }

@@ -3,9 +3,7 @@
 import { useState } from "react";
 import { Cat, Dog } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
-import { PrototypeAsset } from "@/components/prototype/prototype-asset";
 import type { MiniRoomPet } from "@/lib/adapters/roomPublicDataAdapter";
-import { decor } from "@/lib/prototype-assets";
 import { cn } from "@/lib/utils";
 
 type PetSpriteProps = {
@@ -82,17 +80,40 @@ export function PetSprite({ pet, zIndex, onSelect }: PetSpriteProps) {
             src={pet.assetUrl}
             alt={pet.name}
             draggable={false}
-            className="pointer-events-none absolute bottom-0 left-1/2 max-h-full max-w-full -translate-x-1/2 object-contain drop-shadow-[0_10px_9px_rgba(45,27,15,0.28)] transition group-hover:-translate-y-1"
+            className="pointer-events-none absolute bottom-0 left-1/2 max-h-full max-w-full -translate-x-1/2 object-contain [filter:drop-shadow(var(--room-sprite-shadow))_drop-shadow(var(--room-sprite-shadow-soft))_drop-shadow(var(--room-rim-x)_var(--room-rim-y)_0_var(--room-rim-color))] transition group-hover:-translate-y-1"
           />
         ) : (
           <>
-            <PrototypeAsset src={decor.stampFlower} className="absolute inset-1" />
-            <span className="relative flex h-12 w-12 items-center justify-center text-coffee drop-shadow-sticker transition group-hover:-translate-y-1">
+            <span className="absolute inset-1 rounded-full bg-cream/78 shadow-[0_0_18px_rgba(255,215,123,0.74)]" />
+            <span className="torn-edge paper-grain relative flex h-12 w-12 items-center justify-center bg-parchment text-coffee shadow-sticker transition group-hover:-translate-y-1">
               <Icon className="h-7 w-7" strokeWidth={1.5} />
             </span>
           </>
         )}
       </motion.span>
+
+      {shadow.enabled && pet.assetUrl ? (
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-full -translate-x-1/2"
+          style={{
+            width,
+            height: height * 0.55,
+            transform: "translate(-50%, -2%) scaleY(-1)",
+            WebkitMaskImage:
+              "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 70%)",
+            maskImage:
+              "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 70%)"
+          }}
+        >
+          <img
+            src={pet.assetUrl}
+            alt=""
+            draggable={false}
+            className="absolute bottom-0 left-1/2 max-h-full max-w-full -translate-x-1/2 object-contain opacity-30 blur-[2px]"
+          />
+        </span>
+      ) : null}
     </motion.button>
   );
 }

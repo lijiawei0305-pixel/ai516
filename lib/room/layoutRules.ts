@@ -68,6 +68,14 @@ export type RoomObjectPosition = {
   layer?: number;
 };
 
+export type RoomObjectLayer = {
+  role: "back" | "mid" | "front";
+  assetUrl: string;
+  zOffset?: number;
+  parallaxMultiplier?: number;
+  swayAmplitude?: number;
+};
+
 export type RoomObjectRender = {
   assetUrl: string;
   width: number;
@@ -77,6 +85,7 @@ export type RoomObjectRender = {
   anchor: RoomObjectAnchor;
   scale: number;
   shadow: RoomObjectShadow;
+  layers?: RoomObjectLayer[];
 };
 
 export type LayoutSlotKey =

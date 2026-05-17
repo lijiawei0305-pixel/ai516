@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
 import { PaperPage } from "@/components/layout/paper-page";
-import { PaperIconButton } from "@/components/handbook/paper-icon-button";
+import { HanddrawnIconButton } from "@/components/handbook/handdrawn-icon-button";
 import { ArrowLeft, Settings2, Sparkles } from "lucide-react";
 import { TornPaperCard } from "@/components/handbook/torn-paper-card";
 import { LlmProviderForm } from "@/components/admin/LlmProviderForm";
@@ -61,7 +61,7 @@ export default function Page() {
     <AppShell>
       <PaperPage className="pt-14" innerClassName="pb-10">
         <header className="relative mb-5 text-center">
-          <PaperIconButton
+          <HanddrawnIconButton
             icon={<ArrowLeft className="h-6 w-6" />}
             label="返回首页"
             className="absolute left-0 top-0"

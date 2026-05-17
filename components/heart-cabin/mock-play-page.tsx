@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Home, Sparkles } from "lucide-react";
-import { PaperIconButton } from "@/components/handbook/paper-icon-button";
+import { HanddrawnIconButton } from "@/components/handbook/handdrawn-icon-button";
 import { PaperButton } from "@/components/handbook/paper-button";
 import { TornPaperCard } from "@/components/handbook/torn-paper-card";
 import { AppShell } from "@/components/layout/app-shell";
@@ -16,7 +16,7 @@ export function MockPlayPage() {
     <AppShell>
       <PaperPage className="pt-16">
         <header className="relative mb-8 text-center">
-          <PaperIconButton
+          <HanddrawnIconButton
             icon={<ArrowLeft className="h-7 w-7" />}
             label="返回创建页"
             onClick={() => router.push("/create")}

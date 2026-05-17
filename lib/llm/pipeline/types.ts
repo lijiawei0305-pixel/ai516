@@ -98,6 +98,19 @@ export const roomDesignSchema = z
   })
   .strict();
 
+export const objectImagePromptLayerRoleSchema = z.enum(["back", "mid", "front"]);
+
+export const objectImagePromptLayerSchema = z
+  .object({
+    role: objectImagePromptLayerRoleSchema,
+    positivePrompt: shortText(1400),
+    negativePrompt: optionalText(500),
+    zOffset: z.number().min(-80).max(80).optional(),
+    parallaxMultiplier: z.number().min(0.4).max(1.6).optional(),
+    swayAmplitude: z.number().min(0).max(6).optional()
+  })
+  .strict();
+
 export const objectImagePromptSchema = z
   .object({
     objectId: pipelineIdSchema,
@@ -105,7 +118,8 @@ export const objectImagePromptSchema = z
     negativePrompt: optionalText(500),
     size: z.enum(["512x512", "768x768", "1024x1024"]),
     styleTags: z.array(shortText(40)).min(6).max(18),
-    renderIntent: shortText(220)
+    renderIntent: shortText(220),
+    layers: z.array(objectImagePromptLayerSchema).max(4).optional()
   })
   .strict();
 
@@ -163,6 +177,7 @@ export const imageGenerationJobSchema = z
     objectId: pipelineIdSchema,
     objectName: shortText(32),
     assetRole: imageAssetRoleSchema,
+    layerRole: objectImagePromptLayerRoleSchema.optional(),
     prompt: shortText(3000),
     negativePrompt: optionalText(700),
     size: z.enum(["512x512", "768x768", "1024x1024"]),
@@ -179,7 +194,7 @@ export const roomAssetPlanSchema = z
     generationPlan: z
       .object({
         maxConcurrentImageJobs: z.number().int().min(1).max(12),
-        jobs: z.array(imageGenerationJobSchema).length(8)
+        jobs: z.array(imageGenerationJobSchema).min(8).max(20)
       })
       .strict()
   })
@@ -412,7 +427,24 @@ export const imagePromptPlanJsonSchema = {
             maxItems: 18,
             items: { type: "string", maxLength: 40 }
           },
-          renderIntent: { type: "string", maxLength: 220 }
+          renderIntent: { type: "string", maxLength: 220 },
+          layers: {
+            type: "array",
+            maxItems: 4,
+            items: {
+              type: "object",
+              additionalProperties: false,
+              required: ["role", "positivePrompt"],
+              properties: {
+                role: { type: "string", enum: ["back", "mid", "front"] },
+                positivePrompt: { type: "string", maxLength: 1400 },
+                negativePrompt: { type: ["string", "null"], maxLength: 500 },
+                zOffset: { type: "number", minimum: -80, maximum: 80 },
+                parallaxMultiplier: { type: "number", minimum: 0.4, maximum: 1.6 },
+                swayAmplitude: { type: "number", minimum: 0, maximum: 6 }
+              }
+            }
+          }
         }
       }
     },

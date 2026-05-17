@@ -7,8 +7,6 @@ import { StickerTag } from "@/components/handbook/sticker-tag";
 import { TornPaperCard } from "@/components/handbook/torn-paper-card";
 import { NotebookTextarea } from "@/components/ui/notebook-textarea";
 import { ImageModeSelector } from "@/components/admin/ImageModeSelector";
-import { AssetSelect, AssetTextInput, AssetToggleCard } from "@/components/prototype/asset-fields";
-import { PaperIconButton } from "@/components/handbook/paper-icon-button";
 import { useAdminLlmStore } from "@/lib/admin-llm-store";
 import { saveAdminLlmConfig, resetAdminLlmConfig } from "@/lib/api/admin-llm";
 import {
@@ -123,23 +121,24 @@ export function LlmProviderForm({ initialConfig, onLoaded }: LlmProviderFormProp
           <div className="space-y-2">
             <label className="font-serif text-sm text-coffee/72">API Key</label>
             <div className="flex gap-2">
-              <AssetTextInput
+              <input
                 type={showApiKey ? "text" : "password"}
                 value={form.provider.apiKey}
                 onChange={(event) =>
                   updateSection("provider", "apiKey", event.target.value)
                 }
+                className="lined-paper paper-grain min-h-14 w-full rounded-[3px] border-0 bg-cream/92 px-4 font-serif text-base text-coffee shadow-paper outline-none"
                 autoComplete="off"
                 spellCheck={false}
               />
-              <PaperIconButton
+              <button
                 type="button"
                 onClick={() => setShowApiKey((value) => !value)}
-                className="h-14 w-14"
+                className="torn-edge paper-grain inline-flex h-14 w-14 items-center justify-center bg-parchment text-coffee shadow-sticker"
                 aria-label={showApiKey ? "隐藏 API Key" : "显示 API Key"}
-                icon={showApiKey ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                label={showApiKey ? "隐藏 API Key" : "显示 API Key"}
-              />
+              >
+                {showApiKey ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
             </div>
           </div>
           <Field
@@ -210,7 +209,7 @@ export function LlmProviderForm({ initialConfig, onLoaded }: LlmProviderFormProp
         />
         <label className="space-y-2">
           <span className="font-serif text-sm text-coffee/72">Response Format</span>
-          <AssetSelect
+          <select
             value={form.image.imageResponseFormat}
             onChange={(event) =>
               updateSection(
@@ -219,15 +218,16 @@ export function LlmProviderForm({ initialConfig, onLoaded }: LlmProviderFormProp
                 event.target.value as AdminLlmConfigDraft["image"]["imageResponseFormat"]
               )
             }
+            className="lined-paper paper-grain min-h-14 w-full rounded-[3px] border-0 bg-cream/92 px-4 font-serif text-base text-coffee shadow-paper outline-none"
           >
             <option value="url">url</option>
             <option value="b64_json">b64_json</option>
             <option value="auto">auto</option>
-          </AssetSelect>
+          </select>
         </label>
         <label className="space-y-2">
           <span className="font-serif text-sm text-coffee/72">Image Size</span>
-          <AssetSelect
+          <select
             value={form.image.imageSize}
             onChange={(event) =>
               updateSection(
@@ -236,11 +236,12 @@ export function LlmProviderForm({ initialConfig, onLoaded }: LlmProviderFormProp
                 event.target.value as AdminLlmConfigDraft["image"]["imageSize"]
               )
             }
+            className="lined-paper paper-grain min-h-14 w-full rounded-[3px] border-0 bg-cream/92 px-4 font-serif text-base text-coffee shadow-paper outline-none"
           >
             <option value="512x512">512x512</option>
             <option value="768x768">768x768</option>
             <option value="1024x1024">1024x1024</option>
-          </AssetSelect>
+          </select>
         </label>
       </TornPaperCard>
 
@@ -321,9 +322,10 @@ function Field({
   return (
     <label className="space-y-2">
       <span className="font-serif text-sm text-coffee/72">{label}</span>
-      <AssetTextInput
+      <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
+        className="lined-paper paper-grain min-h-14 w-full rounded-[3px] border-0 bg-cream/92 px-4 font-serif text-base text-coffee shadow-paper outline-none"
       />
     </label>
   );
@@ -341,10 +343,11 @@ function NumberField({
   return (
     <label className="space-y-2">
       <span className="font-serif text-sm text-coffee/72">{label}</span>
-      <AssetTextInput
+      <input
         type="number"
         value={value}
         onChange={(event) => onChange(Number(event.target.value))}
+        className="lined-paper paper-grain min-h-14 w-full rounded-[3px] border-0 bg-cream/92 px-4 font-serif text-base text-coffee shadow-paper outline-none"
       />
     </label>
   );
@@ -360,16 +363,18 @@ function ToggleField({
   onChange: (value: boolean) => void;
 }) {
   return (
-    <AssetToggleCard
+    <button
+      type="button"
       onClick={() => onChange(!value)}
-      selected={value}
-      className="min-h-14"
+      className={cn(
+        "torn-edge paper-grain flex min-h-14 items-center justify-between gap-3 px-4 py-3 text-left shadow-sticker",
+        value ? "bg-sage text-cream" : "bg-cream text-coffee"
+      )}
+      aria-pressed={value}
     >
-      <span className="flex w-full items-center justify-between gap-3">
-        <span className="font-serif text-base">{label}</span>
-        <span className="text-sm opacity-80">{value ? "已开启" : "已关闭"}</span>
-      </span>
-    </AssetToggleCard>
+      <span className="font-serif text-base">{label}</span>
+      <span className="text-sm opacity-80">{value ? "已开启" : "已关闭"}</span>
+    </button>
   );
 }
 

@@ -1,6 +1,10 @@
 import type { LlmProvider } from "@/lib/llm/provider/types";
 import { normalizeImageResponse } from "@/lib/llm/imageJobs/normalizeImageResponse";
 import { downloadOrDecodeImage } from "@/lib/llm/imageJobs/downloadOrDecodeImage";
+import {
+  isPostProcessableMimeType,
+  postProcessAssetBuffer
+} from "@/lib/llm/imageJobs/postProcessImage";
 import { storeGeneratedAsset } from "@/lib/llm/imageJobs/storeGeneratedAsset";
 import type {
   ImageAssetRole,
@@ -65,6 +69,7 @@ export type ObjectImageJobSuccess = {
   objectId: string;
   objectName: string;
   assetRole: ImageAssetRole;
+  layerRole: "back" | "mid" | "front" | "main";
   status: "success";
   assetId: string;
   storagePath: string;
@@ -135,15 +140,35 @@ async function generateSingleObjectImage(
       normalized.images,
       input.provider.config.timeoutMs
     );
+    let processedBuffer = decoded.buffer;
+
+    if (isPostProcessableMimeType(decoded.mimeType)) {
+      try {
+        processedBuffer = await postProcessAssetBuffer(
+          decoded.buffer,
+          job.assetRole
+        );
+      } catch (postProcessError) {
+        const message =
+          postProcessError instanceof Error
+            ? postProcessError.message
+            : String(postProcessError);
+        console.warn(
+          `[runObjectImageJobs] post-process failed for ${job.objectId} (${job.assetRole}): ${message}`
+        );
+      }
+    }
+
     const stored = await storeGeneratedAsset({
       roomId: input.roomId,
       creatorId: input.creatorId,
       objectId: job.objectId,
       objectName,
       assetRole: job.assetRole,
+      layerRole: job.layerRole ?? "main",
       promptText: job.prompt,
       sourceType: decoded.sourceType,
-      buffer: decoded.buffer,
+      buffer: processedBuffer,
       mimeType: decoded.mimeType,
       providerName: input.provider.config.providerName,
       imageMode: input.provider.config.imageMode,
@@ -154,6 +179,7 @@ async function generateSingleObjectImage(
       objectId: job.objectId,
       objectName,
       assetRole: job.assetRole,
+      layerRole: stored.layerRole,
       status: "success",
       assetId: stored.assetId,
       storagePath: stored.storagePath,

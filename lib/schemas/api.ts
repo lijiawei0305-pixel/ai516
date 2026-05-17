@@ -84,6 +84,16 @@ export const roomStageAssetSchema = z.object({
   style: z.string().optional()
 });
 
+export const roomObjectLayerRoleSchema = z.enum(["back", "mid", "front"]);
+
+export const roomObjectLayerSchema = z.object({
+  role: roomObjectLayerRoleSchema,
+  assetUrl: z.string(),
+  zOffset: z.number().min(-80).max(80).default(0).optional(),
+  parallaxMultiplier: z.number().min(0.4).max(1.6).default(1).optional(),
+  swayAmplitude: z.number().min(0).max(6).default(0).optional()
+});
+
 export const roomObjectRenderSchema = z.object({
   assetUrl: z.string().min(0),
   width: z.number(),
@@ -92,7 +102,8 @@ export const roomObjectRenderSchema = z.object({
   interactive: z.literal(true),
   anchor: roomAnchorSchema.optional(),
   scale: z.number().optional(),
-  shadow: roomObjectShadowSchema.optional()
+  shadow: roomObjectShadowSchema.optional(),
+  layers: z.array(roomObjectLayerSchema).max(4).optional()
 });
 
 export const publicRoomStageSchema = z.object({

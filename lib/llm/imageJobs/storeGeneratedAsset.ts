@@ -4,12 +4,15 @@ import { supabaseRest, getSupabaseServerConfig } from "@/lib/server/supabaseRest
 import { uploadGeneratedAsset } from "@/lib/storage/uploadGeneratedAsset";
 import type { ImageAssetRole } from "@/lib/llm/pipeline/types";
 
+export type GeneratedAssetLayerRole = "back" | "mid" | "front" | "main";
+
 export type StoreGeneratedAssetInput = {
   roomId: string;
   creatorId: string;
   objectId: string;
   objectName: string;
   assetRole?: ImageAssetRole;
+  layerRole?: GeneratedAssetLayerRole;
   promptText: string;
   sourceType: "url" | "base64";
   buffer: Buffer;
@@ -22,6 +25,7 @@ export type StoreGeneratedAssetInput = {
 export type StoredGeneratedAsset = {
   assetId: string;
   objectId: string;
+  layerRole: GeneratedAssetLayerRole;
   storagePath: string;
   publicUrl: string | null;
   sourceType: "url" | "base64";
@@ -33,10 +37,11 @@ export async function storeGeneratedAsset(
   input: StoreGeneratedAssetInput
 ): Promise<StoredGeneratedAsset> {
   const assetId = crypto.randomUUID();
+  const layerRole: GeneratedAssetLayerRole = input.layerRole ?? "main";
   const uploaded = await uploadGeneratedAsset({
     roomId: input.roomId,
     creatorId: input.creatorId,
-    objectId: input.objectId,
+    objectId: layerRole === "main" ? input.objectId : `${input.objectId}_${layerRole}`,
     assetId,
     buffer: input.buffer,
     mimeType: input.mimeType
@@ -54,6 +59,8 @@ export async function storeGeneratedAsset(
           creator_id: input.creatorId,
           storage_path: uploaded.storagePath,
           public_url: uploaded.publicUrl,
+          object_id: input.objectId,
+          layer_role: layerRole,
           signed_url_strategy: {
             mode: uploaded.storageMode === "supabase" ? "signed" : "local",
             ttl_seconds: uploaded.storageMode === "supabase" ? 3600 : null,
@@ -61,6 +68,7 @@ export async function storeGeneratedAsset(
             image_mode: input.imageMode,
             response_format: input.responseFormat,
             object_id: input.objectId,
+            layer_role: layerRole,
             asset_role: input.assetRole ?? "clue_object_sprite"
           },
           asset_type: "image",
@@ -75,6 +83,7 @@ export async function storeGeneratedAsset(
   return {
     assetId,
     objectId: input.objectId,
+    layerRole,
     storagePath: uploaded.storagePath,
     publicUrl: uploaded.publicUrl,
     sourceType: input.sourceType,

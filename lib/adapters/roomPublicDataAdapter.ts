@@ -31,6 +31,16 @@ export type MiniRoomShadow = {
   offsetY: number;
 };
 
+export type MiniRoomLayerRole = "back" | "mid" | "front";
+
+export type MiniRoomLayer = {
+  role: MiniRoomLayerRole;
+  assetUrl: string;
+  zOffset: number;
+  parallaxMultiplier: number;
+  swayAmplitude: number;
+};
+
 export type MiniRoomRender = {
   assetUrl: string | null;
   width: number;
@@ -40,6 +50,7 @@ export type MiniRoomRender = {
   anchor: MiniRoomAnchor;
   scale: number;
   shadow: MiniRoomShadow;
+  layers: MiniRoomLayer[];
 };
 
 export type MiniRoomObject = {
@@ -249,6 +260,30 @@ function adaptRender(
     Math.min(1.35, finiteNumber(object.scale ?? render?.scale, 0.9 + position.y / 520))
   );
   const shadow = adaptShadow(object.shadow ?? render?.shadow, width, position);
+  const rawLayers = Array.isArray(render?.layers) ? render?.layers : [];
+  const layers: MiniRoomLayer[] = rawLayers
+    .filter(
+      (layer): layer is { role: MiniRoomLayerRole; assetUrl: string; zOffset?: number; parallaxMultiplier?: number; swayAmplitude?: number } =>
+        Boolean(
+          layer &&
+            typeof layer.assetUrl === "string" &&
+            layer.assetUrl.trim().length > 0 &&
+            (layer.role === "back" || layer.role === "mid" || layer.role === "front")
+        )
+    )
+    .map((layer) => ({
+      role: layer.role,
+      assetUrl: layer.assetUrl.trim(),
+      zOffset: Math.max(-80, Math.min(80, finiteNumber(layer.zOffset, layer.role === "back" ? -20 : layer.role === "front" ? 18 : 0))),
+      parallaxMultiplier: Math.max(
+        0.4,
+        Math.min(1.6, finiteNumber(layer.parallaxMultiplier, layer.role === "back" ? 0.7 : layer.role === "front" ? 1.3 : 1))
+      ),
+      swayAmplitude: Math.max(
+        0,
+        Math.min(6, finiteNumber(layer.swayAmplitude, layer.role === "front" ? 2 : 0))
+      )
+    }));
 
   return {
     assetUrl,
@@ -258,7 +293,8 @@ function adaptRender(
     interactive: true,
     anchor: adaptAnchor(object.anchor ?? render?.anchor),
     scale,
-    shadow
+    shadow,
+    layers
   };
 }
 

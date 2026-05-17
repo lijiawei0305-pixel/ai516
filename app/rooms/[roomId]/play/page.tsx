@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Heart } from "lucide-react";
-import { PaperIconButton } from "@/components/handbook/paper-icon-button";
+import { HanddrawnIconButton } from "@/components/handbook/handdrawn-icon-button";
 import { PaperButton } from "@/components/handbook/paper-button";
 import { TornPaperCard } from "@/components/handbook/torn-paper-card";
 import { AppShell } from "@/components/layout/app-shell";
@@ -67,7 +67,7 @@ export default function RoomPlayPage() {
   return (
     <AppShell>
       <PaperPage className="px-4 pt-16" withBinder={false}>
-        <PaperIconButton
+        <HanddrawnIconButton
           icon={<ArrowLeft className="h-7 w-7" />}
           label="返回"
           onClick={() => router.push("/")}

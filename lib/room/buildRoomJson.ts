@@ -140,16 +140,58 @@ function buildAssetMap(input: BuildRoomJsonInput) {
     if (
       isSuccessfulAsset(asset) &&
       asset.assetRole === "clue_object_sprite" &&
-      asset.publicUrl
+      asset.publicUrl &&
+      (asset.layerRole === "main" || asset.layerRole === "mid")
+    ) {
+      map.set(asset.objectId, asset.publicUrl);
+    }
+  });
+
+  input.objectAssets?.forEach((asset) => {
+    if (
+      isSuccessfulAsset(asset) &&
+      asset.assetRole === "clue_object_sprite" &&
+      asset.publicUrl &&
+      !map.has(asset.objectId)
     ) {
       map.set(asset.objectId, asset.publicUrl);
     }
   });
 
   input.room?.objects.forEach((object) => {
-    if (object.imageUrl) {
+    if (object.imageUrl && !map.has(object.id)) {
       map.set(object.id, object.imageUrl);
     }
+  });
+
+  return map;
+}
+
+function buildLayersMap(input: BuildRoomJsonInput) {
+  const map = new Map<
+    string,
+    Array<{ role: "back" | "mid" | "front"; assetUrl: string }>
+  >();
+
+  input.objectAssets?.forEach((asset) => {
+    if (
+      !isSuccessfulAsset(asset) ||
+      asset.assetRole !== "clue_object_sprite" ||
+      !asset.publicUrl
+    ) {
+      return;
+    }
+    if (
+      asset.layerRole !== "back" &&
+      asset.layerRole !== "mid" &&
+      asset.layerRole !== "front"
+    ) {
+      return;
+    }
+
+    const list = map.get(asset.objectId) ?? [];
+    list.push({ role: asset.layerRole, assetUrl: asset.publicUrl });
+    map.set(asset.objectId, list);
   });
 
   return map;
@@ -272,6 +314,7 @@ function buildObjects(input: BuildRoomJsonInput): RoomJsonObject[] {
   const visualTheme =
     input.roomDesign?.visualTheme ?? input.room?.visualTheme ?? "old_paper_dollhouse";
   const assetByObjectId = buildAssetMap(input);
+  const layersByObjectId = buildLayersMap(input);
   const usedSlotKeys = new Set<
     Parameters<typeof getLayoutForObject>[3] extends Set<infer T> ? T : never
   >();
@@ -291,6 +334,7 @@ function buildObjects(input: BuildRoomJsonInput): RoomJsonObject[] {
   return concepts.map((object, index) => {
     const layout = getLayoutForObject(object, index, visualTheme, usedSlotKeys);
     const assetUrl = assetByObjectId.get(object.id) ?? "";
+    const layers = layersByObjectId.get(object.id) ?? [];
     const scale = Number((0.9 + Math.max(0, Math.min(100, layout.position.y)) / 520).toFixed(2));
     const anchor = bottomCenterAnchor();
     const shadow = buildObjectShadow(layout);
@@ -313,7 +357,20 @@ function buildObjects(input: BuildRoomJsonInput): RoomJsonObject[] {
         interactive: true,
         anchor,
         scale,
-        shadow
+        shadow,
+        ...(layers.length > 0
+          ? {
+              layers: layers.map((layer) => ({
+                role: layer.role,
+                assetUrl: layer.assetUrl,
+                zOffset:
+                  layer.role === "back" ? -20 : layer.role === "front" ? 18 : 0,
+                parallaxMultiplier:
+                  layer.role === "back" ? 0.7 : layer.role === "front" ? 1.3 : 1,
+                swayAmplitude: layer.role === "front" ? 2 : 0
+              }))
+            }
+          : {})
       },
       interactionType: normalizeInteractionType(
         "interactionType" in object ? object.interactionType : undefined

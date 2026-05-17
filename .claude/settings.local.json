@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node ./node_modules/typescript/bin/tsc --noEmit)",
+      "Bash(echo \"EXITCODE=$?\")",
+      "Bash(node --test tests/*.test.mjs)",
+      "Bash(npm install *)",
+      "Bash(echo \"EXITCODE_TS=$?\")",
+      "Bash(echo \"EXITCODE_TEST=$?\")",
+      "Bash(echo \"EXIT=$?\")"
+    ]
+  }
+}

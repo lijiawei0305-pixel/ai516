@@ -87,6 +87,8 @@ export type Database = {
           asset_type: Database["public"]["Enums"]["room_asset_type"];
           role: Database["public"]["Enums"]["room_asset_role"];
           safe_description: string | null;
+          object_id: string | null;
+          layer_role: string;
           created_at: string;
         };
         Insert: {
@@ -99,6 +101,8 @@ export type Database = {
           asset_type?: Database["public"]["Enums"]["room_asset_type"];
           role?: Database["public"]["Enums"]["room_asset_role"];
           safe_description?: string | null;
+          object_id?: string | null;
+          layer_role?: string;
           created_at?: string;
         };
         Update: {
@@ -111,6 +115,8 @@ export type Database = {
           asset_type?: Database["public"]["Enums"]["room_asset_type"];
           role?: Database["public"]["Enums"]["room_asset_role"];
           safe_description?: string | null;
+          object_id?: string | null;
+          layer_role?: string;
           created_at?: string;
         };
       };

@@ -2,7 +2,6 @@
 
 import { cn } from "@/lib/utils";
 import type { AdminLlmImageMode } from "@/lib/schemas/adminLlmConfig";
-import { AssetToggleCard } from "@/components/prototype/asset-fields";
 
 type ImageModeSelectorProps = {
   value: AdminLlmImageMode;
@@ -33,23 +32,25 @@ export function ImageModeSelector({ value, onChange }: ImageModeSelectorProps) {
         const selected = option.value === value;
 
         return (
-          <AssetToggleCard
+          <button
             key={option.value}
+            type="button"
             onClick={() => onChange(option.value)}
-            selected={selected}
-            label={option.label}
             className={cn(
-              "min-h-24",
-              selected ? "text-cream" : "text-coffee"
+              "torn-edge paper-grain text-left shadow-sticker transition active:translate-y-0.5",
+              "min-h-24 rounded-[3px] px-4 py-3",
+              selected ? "bg-sage text-cream" : "bg-parchment text-coffee"
             )}
+            aria-pressed={selected}
           >
             <div className="soft-title text-lg">{option.label}</div>
             <p className="mt-1 font-serif text-sm leading-6 opacity-80">
               {option.description}
             </p>
-          </AssetToggleCard>
+          </button>
         );
       })}
     </div>
   );
 }
+

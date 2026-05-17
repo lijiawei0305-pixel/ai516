@@ -8,13 +8,14 @@ import {
   Home,
   LockKeyhole,
   Send,
+  Sprout,
   Star,
   X
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import Image from "next/image";
 import { useState } from "react";
-import { PaperIconButton } from "@/components/handbook/paper-icon-button";
+import { HanddrawnIcons } from "@/components/handbook/handdrawn-assets";
+import { HanddrawnIconButton } from "@/components/handbook/handdrawn-icon-button";
 import { PaperButton } from "@/components/handbook/paper-button";
 import { PolaroidCard } from "@/components/handbook/polaroid-card";
 import { StickerTag } from "@/components/handbook/sticker-tag";
@@ -27,9 +28,6 @@ import { MiniCabin } from "@/components/heart-cabin/decorations";
 import type { OwnerResultViewData, PublicGuessResult } from "@/lib/contracts";
 import { mockGuessResult, mockOwnerResultViewData } from "@/lib/mock-guess-result";
 import { useGuessFlow } from "@/lib/use-guess-flow";
-import { PrototypeAsset } from "@/components/prototype/prototype-asset";
-import { DiaryStatusAssetCard } from "@/components/prototype/diary-status-asset-card";
-import { affinityCardAsset, decor, objects } from "@/lib/prototype-assets";
 
 type ResultPageProps = {
   guessId: string;
@@ -51,15 +49,6 @@ export function ResultPage({ guessId }: ResultPageProps) {
     sendDiaryRequest,
     markSavedToDiary
   } = useGuessFlow();
-  const diaryStatus = resultSavedToDiary
-    ? "saved"
-    : result.canRequestDiary
-    ? diaryRequestSent
-      ? "unlocked"
-      : "requestable"
-    : result.scorePercent >= result.tacitThreshold - 10
-    ? "near"
-    : "locked";
 
   function handleDiaryRequest() {
     sendDiaryRequest();
@@ -76,13 +65,6 @@ export function ResultPage({ guessId }: ResultPageProps) {
           </PolaroidCard>
           <TornPaperCard className="ml-auto min-h-[350px] w-[72%] px-7 py-12" tape="corner">
             <div className="text-center">
-              <Image
-                src={affinityCardAsset(result.scorePercent, "large")}
-                alt=""
-                width={495}
-                height={301}
-                className="mx-auto mb-3 h-auto w-full max-w-[230px] object-contain"
-              />
               <p className="font-serif text-2xl">
                 猜中 <span className="soft-title text-[58px] text-brick-red">{result.scorePercent}</span>%
               </p>
@@ -94,15 +76,12 @@ export function ResultPage({ guessId }: ResultPageProps) {
               <StickerTag tone="sage" className="mt-5">
                 点评
               </StickerTag>
+              <p className="mt-4 text-left font-serif text-lg leading-8">{result.comment}</p>
             </div>
           </TornPaperCard>
           <WaxSeal className="absolute left-10 top-60 z-30" />
           <Star className="absolute right-12 top-12 h-6 w-6 text-warm-orange/65" strokeWidth={1.4} />
         </section>
-
-        <TornPaperCard tone="cream" className="mt-4 px-6 py-5 font-serif text-lg leading-8">
-          {result.comment}
-        </TornPaperCard>
 
         <TornPaperCard className="mt-4" tone="cream">
           <StickerTag tone="sage" className="-mt-7 mb-3">
@@ -120,7 +99,7 @@ export function ResultPage({ guessId }: ResultPageProps) {
             还差一点：
             <br />
             {result.missedNote}
-            <PrototypeAsset src={decor.heart} className="ml-1 inline-block h-5 w-5 align-[-0.15rem]" />
+            <HanddrawnIcons.Heart className="ml-1 inline h-5 w-5 text-warm-orange" />
           </TornPaperCard>
           <TornPaperCard tone="cream" className="font-serif text-lg leading-8">
             <StickerTag tone="sage" className="mb-2">
@@ -135,33 +114,28 @@ export function ResultPage({ guessId }: ResultPageProps) {
           <span>{result.shareText}</span>
         </TornPaperCard>
 
-        <DiaryStatusAssetCard
-          status={diaryStatus}
-          title={resultSavedToDiary ? "已存入日记" : result.canRequestDiary ? "默契靠近" : "日记还锁着"}
-          className="mt-5"
-          action={
-            result.canRequestDiary ? (
+        {result.canRequestDiary ? (
+          <TornPaperCard tone="cream" className="mt-5 px-6 py-5 font-serif text-lg leading-8" tape="corner">
+            <StickerTag tone="sage" className="mb-3">
+              默契靠近
+            </StickerTag>
+            <p>你们的默契度已经足够靠近，可以申请阅读这次心事背后的日记片段。</p>
             <PaperButton
               variant="paper"
-                className="min-h-12 text-xl"
+              className="mt-4 min-h-12 text-xl"
               icon={<LockKeyhole className="h-6 w-6" />}
               onClick={() => setRequestOpen(true)}
               disabled={diaryRequestSent}
             >
               {diaryRequestSent ? "申请已送出" : "申请打开 TA 的日记本"}
             </PaperButton>
-            ) : null
-          }
-        >
-          {result.canRequestDiary
-            ? "你们的默契度已经足够靠近，可以申请阅读这次心事背后的日记片段。"
-            : "再靠近一点，日记片段就会慢慢打开。"}
-        </DiaryStatusAssetCard>
+          </TornPaperCard>
+        ) : null}
 
         <TornPaperCard tone="parchment" className="mt-5 flex items-center justify-between px-5 py-4 font-serif text-lg">
           <span className="inline-flex items-center gap-2">
-            <PrototypeAsset src={objects.diaryUnlocked} className="h-8 w-8" />
-            {resultSavedToDiary ? "已存入我的心事日记" : "尚未存入日记"}
+            <Sprout className="h-5 w-5 text-sage" />
+            {resultSavedToDiary ? "存入我的心事日记" : "尚未存入日记"}
           </span>
           <button type="button" onClick={markSavedToDiary} className="text-sage underline underline-offset-4">
             保存
@@ -241,7 +215,7 @@ function DiaryRequestSheet({
             className="relative w-full"
           >
             <TornPaperCard tone="cream" className="px-6 py-6" tape="corner">
-              <PaperIconButton
+              <HanddrawnIconButton
                 icon={<X className="h-5 w-5" />}
                 label="关闭申请面板"
                 onClick={onClose}
@@ -257,7 +231,7 @@ function DiaryRequestSheet({
                 value={message}
                 onChange={(event) => onMessageChange(event.target.value.slice(0, 80))}
                 placeholder="我想听听这句话背后的那一小段故事。"
-                className="mt-4 min-h-32 w-full resize-none border-0 bg-[url('/assets/prototype/classified/transparent/ui/message_note/message_note_empty.png')] bg-[length:100%_100%] bg-center px-5 py-5 font-serif text-lg leading-[34px] text-coffee drop-shadow-sticker outline-none placeholder:text-coffee/42 focus:ring-2 focus:ring-warm-orange/35"
+                className="lined-paper paper-grain mt-4 min-h-32 w-full resize-none rounded-[3px] border-0 bg-parchment/72 px-5 py-5 font-serif text-lg leading-[34px] text-coffee shadow-insetPaper outline-none placeholder:text-coffee/42 focus:ring-2 focus:ring-warm-orange/35"
               />
               <PaperButton className="mt-5 min-h-12 text-xl" withTape icon={<Send className="h-6 w-6" />} onClick={onSubmit}>
                 发送申请
@@ -282,7 +256,7 @@ function DiarySavedSheet({ open, onClose }: { open: boolean; onClose: () => void
         >
           <motion.div initial={{ y: 70 }} animate={{ y: 0 }} exit={{ y: 70 }} className="w-full">
             <TornPaperCard tone="cream" className="px-6 py-6 text-center" tape="corner">
-              <PaperIconButton
+              <HanddrawnIconButton
                 icon={<X className="h-5 w-5" />}
                 label="关闭日记"
                 onClick={onClose}

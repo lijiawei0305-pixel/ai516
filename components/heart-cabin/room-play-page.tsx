@@ -4,16 +4,23 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   Cat,
+  Check,
+  Clock3,
   Dog,
   Image as ImageIcon,
+  Leaf,
+  Mail,
+  MessageCircle,
+  Moon,
+  Sparkles,
   X
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import Image from "next/image";
 import { useMemo, useState } from "react";
+import { HanddrawnIcons } from "@/components/handbook/handdrawn-assets";
 import { ClueNote } from "@/components/handbook/clue-note";
 import { EnvelopeCard } from "@/components/handbook/envelope-card";
-import { PaperIconButton } from "@/components/handbook/paper-icon-button";
+import { HanddrawnIconButton } from "@/components/handbook/handdrawn-icon-button";
 import { PaperButton } from "@/components/handbook/paper-button";
 import { PolaroidCard } from "@/components/handbook/polaroid-card";
 import { StickerTag } from "@/components/handbook/sticker-tag";
@@ -23,8 +30,6 @@ import { PaperPage } from "@/components/layout/paper-page";
 import type { PublicRoomPlayData, RoomObject } from "@/lib/contracts";
 import { mockRoomPublicData } from "@/lib/mock-room-public";
 import { cn } from "@/lib/utils";
-import { PrototypeAsset } from "@/components/prototype/prototype-asset";
-import { clueObjectAsset, decor, generated, numberToken } from "@/lib/prototype-assets";
 
 type RoomPlayPageProps = {
   roomId: string;
@@ -57,7 +62,7 @@ export function RoomPlayPage({ roomId }: RoomPlayPageProps) {
     <AppShell statusBarDark>
       <PaperPage className="px-4 pt-16" withBinder={false}>
         <header className="relative text-center">
-          <PaperIconButton
+          <HanddrawnIconButton
             icon={<ArrowLeft className="h-7 w-7" />}
             label="返回创建页"
             onClick={() => router.push("/create")}
@@ -65,14 +70,14 @@ export function RoomPlayPage({ roomId }: RoomPlayPageProps) {
           />
           <h1 className="soft-title px-14 pt-2 text-[37px] leading-tight">
             {room.publicTitle}
-            <PrototypeAsset src={decor.heart} className="ml-1 inline-block h-6 w-6 align-[-0.2rem]" />
+            <HanddrawnIcons.Heart className="mb-1 ml-1 inline h-6 w-6 text-warm-orange" />
           </h1>
-          <TornPaperCard tone="parchment" className="mx-auto mt-7 w-[82%] font-serif text-lg leading-7" tape="top">
+          <TornPaperCard tone="parchment" className="mx-auto mt-7 w-[82%] py-3 font-serif text-lg" tape="top">
             这里藏着一句话，找到 <strong>5</strong> 个线索来猜猜看。
           </TornPaperCard>
         </header>
 
-        <section className="relative mt-5 h-[clamp(390px,49dvh,520px)]" aria-label={room.roomTitle}>
+        <section className="relative mt-7 h-[484px]" aria-label={room.roomTitle}>
           <MiniatureHouse
             room={room}
             discoveredIds={discoveredSet}
@@ -136,22 +141,46 @@ export function MiniatureHouse({
   onPetOpen
 }: MiniatureHouseProps) {
   return (
-    <div className="absolute inset-x-0 top-0 h-[min(430px,45dvh)]">
-      <div className="absolute left-1/2 top-0 aspect-[1659/948] w-full max-w-[520px] -translate-x-1/2">
-        <Image
-          src={generated.room}
-          alt=""
-          fill
-          priority
-          sizes="430px"
-          className="object-contain drop-shadow-[0_18px_24px_rgba(55,32,16,0.32)]"
-        />
-        <motion.div
-          animate={{ opacity: [0.35, 0.76, 0.35], scale: [0.92, 1.08, 0.92] }}
-          transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute left-[51%] top-[23%] h-12 w-12 -translate-x-1/2 rounded-full bg-[#ffd470] blur-md"
-        />
-        <PaperPetButton onOpen={onPetOpen} petType={room.pet.type} petName={room.pet.name} />
+    <div className="absolute inset-x-0 top-0 h-[435px]">
+      <div className="absolute left-1/2 top-0 h-[406px] w-[96%] -translate-x-1/2">
+        <div className="absolute inset-x-0 bottom-0 h-[340px] bg-[#b58962] shadow-paper [clip-path:polygon(3%_27%,50%_0,97%_27%,97%_100%,3%_100%)]">
+          <div className="absolute inset-0 bg-[repeating-linear-gradient(90deg,rgba(60,36,20,0.24)_0_2px,transparent_2px_42px),linear-gradient(180deg,#c9a077_0%,#9b6b48_56%,#70452d_100%)]" />
+          <div className="absolute left-0 right-0 top-[59%] h-[41%] bg-[repeating-linear-gradient(150deg,rgba(48,30,18,0.28)_0_2px,transparent_2px_36px),linear-gradient(180deg,#8b5d3b,#70472f)]" />
+          <div className="absolute left-[8%] top-[28%] h-[22%] w-[19%] border-4 border-[#70472d] bg-[#f2c06c]/30 shadow-insetPaper">
+            <div className="grid h-full w-full grid-cols-2 gap-1 p-1">
+              <span className="bg-cream/38" />
+              <span className="bg-cream/30" />
+              <span className="bg-cream/32" />
+              <span className="bg-cream/25" />
+            </div>
+          </div>
+          <div className="absolute right-[10%] top-[22%] h-[25%] w-[25%] border-4 border-[#70472d] bg-[#202a36] shadow-sticker">
+            <Moon className="absolute left-8 top-4 h-9 w-9 text-[#ffd976]" />
+            <Sparkles className="absolute bottom-5 right-5 h-4 w-4 text-[#ffd976]" />
+          </div>
+          <div className="absolute left-[31%] top-[34%] h-[22%] w-[32%] bg-[#775033] shadow-sticker">
+            <div className="absolute -top-4 left-5 h-7 w-16 bg-sage/80" />
+            <div className="absolute bottom-2 left-4 h-5 w-16 bg-parchment/70" />
+            <div className="absolute bottom-9 right-4 h-10 w-12 bg-sage/80" />
+          </div>
+          <div className="absolute bottom-[22%] left-1/2 h-[18%] w-[38%] -translate-x-1/2 rounded bg-[#765036] shadow-paper">
+            <div className="absolute left-3 top-2 h-4 w-10 rounded-full bg-cream/65" />
+            <div className="absolute right-4 top-2 h-5 w-8 rounded-full bg-parchment/80" />
+            <div className="absolute bottom-2 left-1/2 h-2 w-28 -translate-x-1/2 bg-coffee/24" />
+          </div>
+          <div className="absolute bottom-[16%] left-[16%] h-[18%] w-[12%] bg-[#7a5134] shadow-sticker">
+            <div className="absolute -top-4 left-1 h-7 w-10 rounded-t-full bg-[#6d8a6a]" />
+          </div>
+          <div className="absolute bottom-[17%] right-[16%] h-[18%] w-[13%] bg-[#7a5134] shadow-sticker">
+            <div className="absolute -top-5 left-1 h-7 w-11 rounded-t-full bg-parchment" />
+          </div>
+          <motion.div
+            animate={{ opacity: [0.65, 1, 0.7], scale: [0.96, 1.06, 0.98] }}
+            transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute left-1/2 top-[20%] h-12 w-12 -translate-x-1/2 rounded-full bg-[#ffd470] shadow-[0_0_28px_rgba(255,205,96,0.95)]"
+          />
+          <PaperPetButton onOpen={onPetOpen} petType={room.pet.type} petName={room.pet.name} />
+        </div>
 
         {room.objects.map((object, index) => (
           <ClueObjectMarker
@@ -168,10 +197,10 @@ export function MiniatureHouse({
           <button
             type="button"
             onClick={onEnvelopeOpen}
-            className="absolute bottom-[-8%] left-1/2 z-20 -translate-x-1/2 outline-none"
+            className="absolute bottom-[11%] left-1/2 z-20 -translate-x-1/2 outline-none"
             aria-label="查看信封里的照片线索"
           >
-            <EnvelopeCard className="h-16 w-32 rotate-[-2deg] transition-transform active:scale-95 min-[400px]:h-20 min-[400px]:w-40" />
+            <EnvelopeCard className="h-20 w-40 rotate-[-2deg] transition-transform active:scale-95" />
             <span className="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full border-2 border-cream bg-warm-orange text-cream shadow-[0_0_12px_rgba(255,215,123,0.88)]">
               <ImageIcon className="h-4 w-4" />
             </span>
@@ -203,13 +232,20 @@ export function ClueObjectMarker({
       className="absolute z-30 -translate-x-1/2 -translate-y-1/2 outline-none"
       style={{ left: `${object.position.x}%`, top: `${object.position.y}%` }}
     >
-      <motion.span
-        animate={{ scale: selected ? 1.12 : [1, 1.06, 1], opacity: [0.82, 1, 0.86] }}
-        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        className={cn("relative block h-[clamp(48px,13vw,62px)] w-[clamp(48px,13vw,62px)] drop-shadow-[0_0_12px_rgba(255,215,123,0.85)]")}
+      <span
+        className={cn(
+          "relative flex h-12 w-12 items-center justify-center rounded-full border-2 border-cream bg-warm-orange/38 text-2xl font-semibold text-cream shadow-[0_0_12px_rgba(255,215,123,0.92)] transition",
+          discovered && "bg-warm-orange text-cream shadow-[0_0_18px_rgba(255,215,123,1)]",
+          selected && "scale-110"
+        )}
       >
-        <PrototypeAsset src={numberToken(number, discovered ? "active" : "default")} className="h-full w-full" />
-      </motion.span>
+        <motion.span
+          animate={{ scale: [1, 1.13, 1], opacity: [0.65, 1, 0.75] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute inset-[-5px] rounded-full border border-warm-orange/65"
+        />
+        {discovered ? <Check className="h-6 w-6" /> : number}
+      </span>
     </button>
   );
 }
@@ -254,13 +290,13 @@ export function ClueProgressStickers({
           <span
             key={object.id}
             className={cn(
-              "relative flex h-14 w-14 items-center justify-center drop-shadow-sticker",
+              "torn-edge paper-grain relative flex h-12 w-12 items-center justify-center bg-cream text-coffee/35 shadow-sticker",
               active &&
-                "drop-shadow-[0_0_14px_rgba(236,169,77,0.65)]"
+                "text-warm-orange shadow-[0_0_14px_rgba(236,169,77,0.65),0_7px_13px_rgba(75,45,21,0.18)]"
             )}
             title={object.keyword}
           >
-            {getObjectIcon(object.assetKey, active ? "viewed" : "default")}
+            {getObjectIcon(object.assetKey)}
           </span>
         );
       })}
@@ -332,31 +368,18 @@ export function EnvelopeImageClue({
 
 export function PetCompanion({
   type,
-  name,
-  compact = false
+  name
 }: {
   type: PublicRoomPlayData["pet"]["type"];
   name: string;
-  compact?: boolean;
 }) {
   const Icon = type === "cat" ? Cat : Dog;
   return (
     <div className="relative">
-      <div
-        className={cn(
-          "relative flex items-center justify-center text-coffee drop-shadow-sticker",
-          compact ? "h-14 w-14" : "h-16 w-16"
-        )}
-      >
-        <PrototypeAsset src={decor.stampFlower} className="absolute inset-0" imageClassName="object-contain" />
-        <Icon className={cn("relative z-10", compact ? "h-7 w-7" : "h-9 w-9")} strokeWidth={1.4} />
+      <div className="paper-grain flex h-16 w-16 items-center justify-center rounded-full bg-parchment text-coffee shadow-paper">
+        <Icon className="h-10 w-10" strokeWidth={1.4} />
       </div>
-      <span
-        className={cn(
-          "absolute left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-sage text-cream",
-          compact ? "-bottom-1.5 px-1.5 py-0.5 text-[10px]" : "-bottom-2 px-2 py-0.5 text-[11px]"
-        )}
-      >
+      <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-sage px-2 py-0.5 text-[11px] text-cream">
         {name}
       </span>
     </div>
@@ -376,10 +399,13 @@ function PaperPetButton({
     <button
       type="button"
       onClick={onOpen}
-      className="absolute left-[72%] top-[78%] z-20 -translate-x-1/2 -translate-y-1/2 outline-none"
+      className="absolute bottom-[33%] right-[32%] z-20 outline-none"
       aria-label={`和${petName}说话`}
     >
-      <PetCompanion type={petType} name={petName} compact />
+      <PetCompanion type={petType} name={petName} />
+      <span className="absolute -right-5 -top-5 torn-edge paper-grain bg-cream px-2 py-1 text-xs font-serif shadow-sticker">
+        知道一点点
+      </span>
     </button>
   );
 }
@@ -447,7 +473,7 @@ export function PetHintChatSheet({
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.12, duration: 0.24 }}
-                    className="max-w-[92%] bg-[url('/assets/prototype/classified/transparent/objects/chat_note/chat_note_active.png')] bg-[length:100%_100%] bg-center px-4 py-3 font-serif text-lg leading-8 drop-shadow-sticker"
+                    className="torn-edge paper-grain max-w-[92%] bg-parchment px-4 py-3 font-serif text-lg leading-8 shadow-sticker"
                   >
                     {line}
                   </motion.div>
@@ -471,17 +497,23 @@ export function GuessEntryButton({
   return (
     <PaperButton className="mb-12 mt-7" withTape disabled={disabled} onClick={onClick}>
       我好像猜到了
-      <PrototypeAsset src={decor.heart} className="h-7 w-7" />
+      <HanddrawnIcons.Heart className="h-7 w-7 text-warm-orange" />
     </PaperButton>
   );
 }
 
-function getObjectIcon(assetKey: RoomObject["assetKey"], state: "active" | "default" | "viewed" = "default") {
-  return (
-    <PrototypeAsset
-      src={clueObjectAsset(assetKey, state)}
-      className="h-12 w-12"
-      imageClassName="drop-shadow-[0_5px_7px_rgba(55,32,16,0.20)]"
-    />
-  );
+function getObjectIcon(assetKey: RoomObject["assetKey"]) {
+  const className = "h-7 w-7";
+  switch (assetKey) {
+    case "envelope":
+      return <Mail className={className} strokeWidth={1.4} />;
+    case "clock":
+      return <Clock3 className={className} strokeWidth={1.4} />;
+    case "plant":
+      return <Leaf className={className} strokeWidth={1.4} />;
+    case "window":
+      return <Moon className={className} strokeWidth={1.4} />;
+    case "chair-note":
+      return <MessageCircle className={className} strokeWidth={1.4} />;
+  }
 }

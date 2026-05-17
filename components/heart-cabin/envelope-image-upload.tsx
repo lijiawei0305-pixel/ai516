@@ -1,15 +1,14 @@
 "use client";
 
-import { Trash2 } from "lucide-react";
+import { ImagePlus, Trash2 } from "lucide-react";
 import { useId, useRef } from "react";
-import { PaperIconButton } from "@/components/handbook/paper-icon-button";
+import { HanddrawnIconButton } from "@/components/handbook/handdrawn-icon-button";
 import { PolaroidCard } from "@/components/handbook/polaroid-card";
 import { StickerTag } from "@/components/handbook/sticker-tag";
+import { Tape } from "@/components/handbook/tape";
 import { TornPaperCard } from "@/components/handbook/torn-paper-card";
 import type { CreateRoomDraft } from "@/lib/contracts";
 import { cn } from "@/lib/utils";
-import { PrototypeAsset } from "@/components/prototype/prototype-asset";
-import { objects } from "@/lib/prototype-assets";
 
 type EnvelopeImageUploadProps = {
   image: CreateRoomDraft["envelopeImage"];
@@ -70,11 +69,17 @@ export function EnvelopeImageUpload({
           className="group relative block cursor-pointer"
           aria-label="选择一张照片放进信封"
         >
-          <div className="relative h-[clamp(150px,21dvh,190px)] overflow-visible px-5 pb-5 pt-7">
-            <PrototypeAsset src={objects.uploadEnvelopePlus} className="absolute inset-0 h-full w-full" />
+          <Tape className="right-5 top-0 h-6 w-20 rotate-[12deg]" />
+          <div className="relative min-h-44 overflow-visible rounded-[4px] bg-parchment px-5 pb-5 pt-7 shadow-paper">
+            <div className="absolute inset-x-0 top-0 h-24 origin-top skew-y-[-6deg] border-b border-coffee/14 bg-cream/36" />
+            <div className="absolute inset-x-0 bottom-0 h-24 bg-[linear-gradient(142deg,transparent_49%,rgba(90,59,31,0.14)_50%,transparent_51%),linear-gradient(218deg,transparent_49%,rgba(90,59,31,0.12)_50%,transparent_51%)]" />
             <div className="relative z-10 mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-cream/55 text-sage shadow-insetPaper transition-transform group-active:scale-95">
+              <ImagePlus className="h-10 w-10" strokeWidth={1.5} />
             </div>
-            <StickerTag tone="sage" className="relative z-10 mx-auto mt-2 flex w-fit">
+            <p className="relative z-10 mx-auto mt-4 max-w-[260px] text-center font-serif text-lg leading-8 text-coffee/76">
+              放一张照片进信封，作为朋友解谜的小线索
+            </p>
+            <StickerTag tone="sage" className="relative z-10 mx-auto mt-4 flex w-fit">
               选择图片
             </StickerTag>
           </div>
@@ -95,7 +100,7 @@ export function EnvelopeImageUpload({
                 已放进信封
               </StickerTag>
               <p className="break-words font-serif text-base leading-7 text-coffee/75">{image.name}</p>
-              <PaperIconButton
+              <HanddrawnIconButton
                 icon={<Trash2 className="h-5 w-5" />}
                 label="移除图片"
                 onClick={handleRemove}

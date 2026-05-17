@@ -1,6 +1,4 @@
 import { cn } from "@/lib/utils";
-import { PrototypeAsset } from "@/components/prototype/prototype-asset";
-import { decor } from "@/lib/prototype-assets";
 
 type TapeProps = {
   className?: string;
@@ -9,17 +7,15 @@ type TapeProps = {
 
 export function Tape({ className, variant = "plain" }: TapeProps) {
   return (
-    <span aria-hidden="true" className={cn("pointer-events-none absolute z-20 block", className)}>
-      <PrototypeAsset
-        src={variant === "strip" ? decor.tapeAlt : decor.tape}
-        className={cn("h-8 w-20 rotate-[-8deg]", variant === "strip" && "h-8 w-20 rotate-6")}
-      />
-      {variant === "cross" ? (
-        <PrototypeAsset
-          src={decor.tapeAlt}
-          className="absolute left-6 top-[-10px] h-8 w-20 rotate-[72deg]"
-        />
-      ) : null}
-    </span>
+    <span
+      aria-hidden="true"
+      className={cn(
+        "pointer-events-none absolute z-20 block h-7 w-24 rotate-[-8deg] bg-tape shadow-[0_2px_7px_rgba(74,45,21,0.16)] backdrop-blur-[1px]",
+        "before:absolute before:inset-0 before:bg-[repeating-linear-gradient(135deg,rgba(255,255,255,0.18)_0_4px,transparent_4px_9px)] before:content-['']",
+        variant === "cross" && "after:absolute after:left-7 after:top-[-10px] after:h-7 after:w-20 after:rotate-[72deg] after:bg-tape after:content-['']",
+        variant === "strip" && "w-16 rotate-6",
+        className
+      )}
+    />
   );
 }

@@ -1,6 +1,5 @@
+import { Flower2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { PrototypeAsset } from "@/components/prototype/prototype-asset";
-import { numberToken } from "@/lib/prototype-assets";
 
 type ProgressStickersProps = {
   total: number;
@@ -17,14 +16,11 @@ export function ProgressStickers({ total, current, className }: ProgressStickers
           <span
             key={index}
             className={cn(
-              "relative flex h-12 w-12 items-center justify-center drop-shadow-sticker",
-              active && "drop-shadow-[0_0_12px_rgba(236,169,77,0.75)]"
+              "torn-edge paper-grain relative flex h-12 w-12 items-center justify-center rounded-full bg-cream text-sage shadow-sticker",
+              active && "text-warm-orange shadow-[0_0_14px_rgba(236,169,77,0.65),0_7px_13px_rgba(75,45,21,0.18)]"
             )}
           >
-            <PrototypeAsset
-              src={numberToken(Math.min(index + 1, 5), active ? "active" : "default")}
-              className="h-12 w-12"
-            />
+            <Flower2 className="h-7 w-7" strokeWidth={1.4} />
           </span>
         );
       })}

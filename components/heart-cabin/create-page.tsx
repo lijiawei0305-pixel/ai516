@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ChevronRight, House } from "lucide-react";
-import { PaperIconButton } from "@/components/handbook/paper-icon-button";
+import { ArrowLeft, ChevronRight, Flower2, Heart, House, Paperclip } from "lucide-react";
+import { HanddrawnIconButton } from "@/components/handbook/handdrawn-icon-button";
 import { PaperButton } from "@/components/handbook/paper-button";
 import { StickerTag } from "@/components/handbook/sticker-tag";
 import { Tape } from "@/components/handbook/tape";
@@ -15,8 +15,6 @@ import { Stamp } from "@/components/heart-cabin/decorations";
 import type { MoodTag } from "@/lib/contracts";
 import { useCreateRoomDraft } from "@/lib/use-create-room-draft";
 import { cn } from "@/lib/utils";
-import { PrototypeAsset } from "@/components/prototype/prototype-asset";
-import { decor } from "@/lib/prototype-assets";
 
 const moodTags: { label: MoodTag; tone: "sage" | "parchment" | "rose" }[] = [
   { label: "想念", tone: "sage" },
@@ -45,7 +43,7 @@ export function CreatePage() {
       <PaperPage className="pt-16">
         <Tape className="left-16 top-11" />
         <header className="relative mb-6 text-center">
-          <PaperIconButton
+          <HanddrawnIconButton
             icon={<ArrowLeft className="h-7 w-7" />}
             label="返回首页"
             onClick={() => router.push("/")}
@@ -54,14 +52,17 @@ export function CreatePage() {
           <h1 className="soft-title pt-3 text-[34px] leading-tight">写下心事</h1>
           <div className="mx-auto mt-2 flex w-36 items-center justify-center gap-2 text-coffee/36">
             <span className="h-px flex-1 bg-coffee/22" />
-            <PrototypeAsset src={decor.leaf} className="h-5 w-5" />
+            <Flower2 className="h-5 w-5" strokeWidth={1.4} />
             <span className="h-px flex-1 bg-coffee/22" />
           </div>
           <Stamp className="absolute right-2 top-0" />
         </header>
 
         <div className="relative">
-          <PrototypeAsset src={decor.paperclipAngle} className="absolute -left-1 -top-4 z-20 h-12 w-12 rotate-12" />
+          <Paperclip
+            className="absolute -left-1 -top-4 z-20 h-12 w-12 rotate-12 text-coffee/42"
+            strokeWidth={1.5}
+          />
           <Tape className="right-2 top-3 rotate-[13deg]" />
           <NotebookTextarea
             value={draft.sentence}
@@ -81,7 +82,7 @@ export function CreatePage() {
         </p>
 
         <section className="mt-8">
-          <StickerTag icon={<PrototypeAsset src={decor.leaf} className="h-5 w-5" />} className="mb-5 text-lg soft-title">
+          <StickerTag icon={<Flower2 className="h-5 w-5" />} className="mb-5 text-lg soft-title">
             选择心事风格（可多选）
           </StickerTag>
           <div className="grid grid-cols-3 gap-4">
@@ -94,16 +95,16 @@ export function CreatePage() {
                   onClick={() => toggleMoodTag(label)}
                   aria-pressed={selected}
                   className={cn(
-                    "relative bg-[length:100%_100%] bg-center py-3 soft-title text-2xl text-coffee drop-shadow-sticker transition active:translate-y-0.5",
-                    tone === "sage" && "bg-[url('/assets/prototype/classified/transparent/ui/tags/ticket_tag_sage.png')]",
-                    tone === "parchment" && "bg-[url('/assets/prototype/classified/transparent/ui/tags/ticket_tag_beige.png')]",
-                    tone === "rose" && "bg-[url('/assets/prototype/classified/transparent/ui/tags/ticket_tag_orange.png')]",
-                    selected && "bg-[url('/assets/prototype/classified/transparent/ui/tags/tag_selected.png')] text-cream drop-shadow-[0_0_12px_rgba(236,169,77,0.55)]",
+                    "torn-edge paper-grain py-3 soft-title text-2xl shadow-sticker transition active:translate-y-0.5",
+                    tone === "sage" && "bg-sage/24 text-coffee",
+                    tone === "parchment" && "bg-parchment text-coffee",
+                    tone === "rose" && "bg-[#e8b6a7]/70 text-coffee",
+                    selected && "bg-sage text-cream shadow-[0_0_0_2px_rgba(255,245,223,0.75),0_8px_16px_rgba(72,45,24,0.18)]",
                     label === "暗恋" && "col-start-1 col-end-3 mx-8"
                   )}
                 >
                   {label}
-                  {selected ? <PrototypeAsset src={decor.heart} className="ml-1 inline-block h-5 w-5 align-[-0.18rem]" /> : null}
+                  {selected ? <Heart className="ml-1 inline h-5 w-5 text-warm-orange" /> : null}
                 </button>
               );
             })}
