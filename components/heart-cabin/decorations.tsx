@@ -27,7 +27,7 @@ export function MiniCabin({ className }: { className?: string }) {
         alt=""
         fill
         sizes="330px"
-        className="object-contain drop-shadow-[0_18px_24px_rgba(55,32,16,0.28)]"
+        className="pointer-events-none object-contain drop-shadow-[0_18px_24px_rgba(55,32,16,0.28)]"
       />
     </div>
   );
@@ -36,7 +36,7 @@ export function MiniCabin({ className }: { className?: string }) {
 export function MiniWindow() {
   return (
     <div className="relative h-full w-full">
-      <Image src={docxAssets.polaroid} alt="" fill sizes="160px" className="object-cover" />
+      <Image src={docxAssets.polaroid} alt="" fill sizes="160px" className="pointer-events-none object-cover" />
     </div>
   );
 }
@@ -47,13 +47,13 @@ export function MiniDoor({ className }: { className?: string }) {
 
 export function RoomStage() {
   return (
-    <div className="absolute inset-x-0 top-0 h-[390px]">
+    <div className="pointer-events-none absolute inset-x-0 top-0 h-[390px]">
       <Image
         src={docxAssets.room}
         alt=""
         fill
         sizes="430px"
-        className="object-contain drop-shadow-[0_18px_24px_rgba(55,32,16,0.28)]"
+        className="pointer-events-none object-contain drop-shadow-[0_18px_24px_rgba(55,32,16,0.28)]"
       />
     </div>
   );

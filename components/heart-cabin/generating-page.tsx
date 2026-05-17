@@ -107,7 +107,7 @@ export function GeneratingPage() {
             type="button"
             aria-label="返回创建页"
             onClick={() => router.push("/create")}
-            className="absolute z-10 left-[5.2%] top-[2.8%] h-[5.8%] w-[14.2%] rounded-[16px] outline-none transition active:scale-95 focus-visible:ring-2 focus-visible:ring-[#f4ead7]"
+            className="absolute z-10 left-[5.2%] top-[2.8%] h-[5.8%] w-[14.2%] rounded-[16px] outline-none transition-all duration-150 active:scale-95 active:brightness-90 hover:brightness-105 focus-visible:ring-2 focus-visible:ring-[#f4ead7]"
           />
 
           {!error && (
@@ -126,7 +126,7 @@ export function GeneratingPage() {
               <button
                 type="button"
                 onClick={() => router.push("/create")}
-                className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#8f9978] px-5 py-3 font-serif text-base text-[#f7efde] outline-none transition active:scale-[0.985] focus-visible:ring-2 focus-visible:ring-[#f4ead7]"
+                className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#8f9978] px-5 py-3 font-serif text-base text-[#f7efde] shadow-sticker outline-none transition-all duration-200 hover:scale-[1.02] hover:shadow-paper active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-[#f4ead7]"
               >
                 回到信纸重试
                 <ChevronRight className="h-4 w-4" />

@@ -30,12 +30,14 @@ export function PaperButton({
 }: PaperButtonProps) {
   return (
     <motion.button
+      whileHover={{ scale: 1.018, y: -2, rotate: 0.3 }}
       whileTap={{ scale: 0.965, y: 2, rotate: -0.4 }}
       transition={{ type: "spring", stiffness: 420, damping: 24 }}
       type={type}
       className={cn(
         "torn-edge paper-grain relative inline-flex min-h-14 w-full items-center justify-center gap-3 overflow-visible px-7 py-4 text-center soft-title text-[28px] leading-none shadow-sticker outline-none",
-        "focus-visible:ring-2 focus-visible:ring-warm-orange/50 disabled:cursor-not-allowed disabled:opacity-60",
+        "transition-shadow duration-200 hover:shadow-paper",
+        "focus-visible:ring-2 focus-visible:ring-warm-orange/50 disabled:pointer-events-none disabled:opacity-50",
         variantClasses[variant],
         className
       )}

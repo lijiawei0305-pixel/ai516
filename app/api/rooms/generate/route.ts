@@ -82,8 +82,9 @@ export async function POST(request: Request) {
   }
 
   const aiConfig = getAiProviderConfigFromEnv();
+  const supabaseConfig = getSupabaseServerConfig();
 
-  if (!aiConfig) {
+  if (!aiConfig || !supabaseConfig) {
     const mockResult = await generateRoomService(parsed.data);
     return jsonResponse(generateRoomResponseSchema, mockResult, 201);
   }

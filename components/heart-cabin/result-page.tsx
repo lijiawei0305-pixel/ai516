@@ -123,7 +123,7 @@ export function ResultPage({ guessId }: ResultPageProps) {
   const result = state.result;
 
   return (
-    <AppShell statusBarDark topChrome={<ResultTopBar title={result.title} />}>
+    <AppShell statusBarDark topChrome={<ResultTopBar title={result.title} onBack={() => router.push("/")} />}>
       <PaperPage backgroundSrc={prototypeBackgrounds.result} className="pt-20">
         <section className="relative">
           <Tape className="left-28 top-0 w-32 rotate-[14deg]" />
@@ -238,10 +238,12 @@ export function ResultPage({ guessId }: ResultPageProps) {
   );
 }
 
-function ResultTopBar({ title }: { title: string }) {
+function ResultTopBar({ title, onBack }: { title: string; onBack: () => void }) {
   return (
     <div className="absolute left-0 right-0 top-0 z-40 flex h-20 items-end justify-between bg-cream px-6 pb-4 text-coffee shadow-[0_2px_12px_rgba(86,53,29,0.12)]">
-      <ArrowLeft className="h-7 w-7" />
+      <button type="button" aria-label="返回" onClick={onBack} className="rounded-full p-1 transition active:scale-90">
+        <ArrowLeft className="h-7 w-7" />
+      </button>
       <h2 className="soft-title text-2xl">{title}</h2>
       <div className="flex items-center gap-3 rounded-full border border-coffee/12 px-4 py-2">
         <CircleEllipsis className="h-5 w-5" />
@@ -273,6 +275,7 @@ function DiaryRequestSheet({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="absolute inset-0 z-50 flex items-end bg-coffee/28 px-5 pb-20 backdrop-blur-[1px]"
+          onClick={onClose}
         >
           <motion.div
             initial={{ y: 80, scale: 0.96 }}
@@ -280,6 +283,7 @@ function DiaryRequestSheet({
             exit={{ y: 60, opacity: 0 }}
             transition={{ duration: 0.28, ease: "easeOut" }}
             className="relative w-full"
+            onClick={(e) => e.stopPropagation()}
           >
             <TornPaperCard tone="cream" className="px-6 py-6" tape="corner">
               <HanddrawnIconButton
@@ -320,8 +324,9 @@ function DiarySavedSheet({ open, onClose }: { open: boolean; onClose: () => void
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="absolute inset-0 z-50 flex items-end bg-coffee/24 px-5 pb-20 backdrop-blur-[1px]"
+          onClick={onClose}
         >
-          <motion.div initial={{ y: 70 }} animate={{ y: 0 }} exit={{ y: 70 }} className="w-full">
+          <motion.div initial={{ y: 70 }} animate={{ y: 0 }} exit={{ y: 70 }} className="w-full" onClick={(e) => e.stopPropagation()}>
             <TornPaperCard tone="cream" className="px-6 py-6 text-center" tape="corner">
               <HanddrawnIconButton
                 icon={<X className="h-5 w-5" />}

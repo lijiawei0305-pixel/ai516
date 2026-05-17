@@ -100,7 +100,7 @@ export function CreatePage() {
             type="button"
             aria-label="返回首页"
             onClick={() => router.push("/")}
-            className="absolute z-10 left-[5.4%] top-[3.3%] h-[5.6%] w-[13.1%] rounded-[16px] outline-none transition active:scale-95 focus-visible:ring-2 focus-visible:ring-[#f4ead7]"
+            className="absolute z-10 left-[5.4%] top-[3.3%] h-[5.6%] w-[13.1%] rounded-[16px] outline-none transition-all duration-150 active:scale-95 active:brightness-90 hover:brightness-105 focus-visible:ring-2 focus-visible:ring-[#f4ead7]"
           />
 
           <label
@@ -116,7 +116,7 @@ export function CreatePage() {
                     alt="已选择的线索图片"
                     fill
                     sizes="140px"
-                    className="object-cover"
+                    className="pointer-events-none object-cover"
                   />
                 </div>
                 <div className="min-w-0 flex-1 pr-8">
@@ -173,11 +173,11 @@ export function CreatePage() {
                 aria-label={`选择${label}`}
                 className={cn(
                   "absolute z-10 rounded-[18px] outline-none transition-all duration-200 ease-out",
-                  "active:scale-95 active:brightness-95",
+                  "active:scale-[0.93] active:brightness-95",
                   "focus-visible:ring-2 focus-visible:ring-[#f4ead7]",
                   selected
-                    ? "scale-[1.03] shadow-[0_6px_20px_rgba(72,45,24,0.18),inset_0_0_0_2px_rgba(139,154,107,0.5)]"
-                    : "hover:scale-[1.02] hover:shadow-[0_4px_12px_rgba(72,45,24,0.1)]"
+                    ? "scale-[1.05] shadow-[0_6px_20px_rgba(72,45,24,0.22),inset_0_0_0_2px_rgba(139,154,107,0.6)]"
+                    : "hover:scale-[1.04] hover:shadow-[0_4px_14px_rgba(72,45,24,0.14)] hover:brightness-105"
                 )}
                 style={{
                   left: position.left,
@@ -204,8 +204,8 @@ export function CreatePage() {
             className={cn(
               "absolute z-10 left-[13.6%] top-[88.4%] flex h-[8.2%] w-[72.2%] items-center justify-center rounded-[20px] outline-none transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-[#f4ead7]",
               canGenerate
-                ? "active:scale-[0.96] active:shadow-[inset_0_2px_6px_rgba(72,45,24,0.2)] hover:scale-[1.01] hover:shadow-[0_4px_16px_rgba(72,45,24,0.15)]"
-                : "active:scale-[0.97]"
+                ? "active:scale-[0.96] active:brightness-90 hover:scale-[1.02] hover:brightness-105 hover:shadow-[0_6px_20px_rgba(72,45,24,0.2)]"
+                : "active:scale-[0.97] opacity-75"
             )}
           />
 

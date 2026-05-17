@@ -36,14 +36,14 @@ export function HomePage() {
             type="button"
             aria-label="把心事藏起来"
             onClick={() => router.push("/create")}
-            className="absolute z-10 left-1/2 -translate-x-1/2 top-[76%] h-[7.5%] w-[74%] rounded-full outline-none transition active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-[#f4ead7]"
+            className="absolute z-10 left-1/2 -translate-x-1/2 top-[76%] h-[7.5%] w-[74%] rounded-full outline-none transition-all duration-150 active:scale-[0.96] active:brightness-90 hover:brightness-105 hover:shadow-[0_0_20px_rgba(244,234,215,0.3)] focus-visible:ring-2 focus-visible:ring-[#f4ead7]"
           />
 
           <button
             type="button"
             aria-label="看看别人怎么藏"
             onClick={() => router.push("/rooms")}
-            className="absolute z-10 left-1/2 -translate-x-1/2 top-[85%] h-[5%] w-[55%] rounded-full outline-none transition active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-[#f4ead7]"
+            className="absolute z-10 left-1/2 -translate-x-1/2 top-[85%] h-[5%] w-[55%] rounded-full outline-none transition-all duration-150 active:scale-[0.96] active:brightness-90 hover:brightness-105 hover:shadow-[0_0_16px_rgba(244,234,215,0.2)] focus-visible:ring-2 focus-visible:ring-[#f4ead7]"
           />
         </div>
       </main>
