@@ -211,6 +211,8 @@ function FurnitureLayer({ room }: { room: AdaptedPublicRoom }) {
   );
 }
 
+const HORIZONTAL_OCCLUDER_KINDS = new Set(["table_front", "rug_front", "paper_floor_lip"]);
+
 function OccluderAsset({ asset }: { asset: MiniRoomStageAsset }) {
   const xPercent = typeof asset.anchor === "object"
     ? asset.anchor.x * 100
@@ -224,14 +226,19 @@ function OccluderAsset({ asset }: { asset: MiniRoomStageAsset }) {
     : asset.anchor === "top-left"
     ? 0
     : 100;
-  const style = {
+  const isHorizontal = HORIZONTAL_OCCLUDER_KINDS.has(asset.kind);
+  const style: CSSProperties = {
     left: `${asset.position.x}%`,
     top: `${asset.position.y}%`,
     zIndex: asset.layer,
     width: asset.width * asset.scale,
     height: asset.height * asset.scale,
     opacity: asset.opacity,
-    transform: `translate(-${xPercent}%, -${yPercent}%)`
+    transform: `translate(-${xPercent}%, -${yPercent}%)`,
+    ...(isHorizontal && {
+      maskImage: "linear-gradient(to bottom, transparent 0%, black 38%)",
+      WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 38%)"
+    })
   };
 
   if (asset.assetUrl) {
@@ -315,7 +322,7 @@ export function LayeredMiniRoomStage({
   return (
     <div
       ref={stageRef}
-      className="relative h-full overflow-hidden"
+      className="relative h-full overflow-clip [overflow-clip-margin:8px]"
       aria-label="线索小屋舞台"
     >
       <div className="absolute inset-0" style={parallaxStyle(tilt, 3)}>

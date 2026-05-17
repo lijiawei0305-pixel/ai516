@@ -253,10 +253,19 @@ function assertNarrative(output: RoomNarrativeOutput, sentence: string) {
   const leaked = publicStrings.some((value) => {
     const normalizedValue = value.replace(/\s+/g, "");
 
-    return normalizedSentence.length < 8
-      ? normalizedValue.includes(normalizedSentence)
-      : normalizedValue.includes(normalizedSentence) ||
-          normalizedSentence.includes(normalizedValue);
+    if (normalizedSentence.length < 8) {
+      return normalizedValue.includes(normalizedSentence);
+    }
+
+    if (normalizedValue.includes(normalizedSentence)) {
+      return true;
+    }
+
+    if (normalizedValue.length >= 6 && normalizedSentence.includes(normalizedValue)) {
+      return true;
+    }
+
+    return false;
   });
 
   if (leaked) {

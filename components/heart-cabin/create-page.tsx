@@ -83,7 +83,7 @@ export function CreatePage() {
             fill
             priority
             sizes="430px"
-            className="object-cover"
+            className="pointer-events-none object-cover"
           />
 
           <button
@@ -99,7 +99,15 @@ export function CreatePage() {
             className="absolute left-[13.7%] top-[71.9%] block h-[11.2%] w-[74.9%] cursor-pointer rounded-[18px] outline-none transition focus-within:ring-2 focus-within:ring-[#f4ead7]"
           >
             {!draft.envelopeImage ? (
-              <div className="h-full w-full" />
+              <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-[18px] bg-[#e8d5b7]">
+                <Image
+                  src="/assets/ui-elements/upload-placeholder.png"
+                  alt="点击上传线索图片"
+                  width={240}
+                  height={96}
+                  className="object-contain opacity-70"
+                />
+              </div>
             ) : (
               <div className="relative flex h-full items-center gap-3 px-[9%]">
                 <div className="relative h-[68%] w-[28%] overflow-hidden rounded-[10px] shadow-[0_8px_18px_rgba(72,45,24,0.18)]">
@@ -164,8 +172,12 @@ export function CreatePage() {
                 aria-pressed={selected}
                 aria-label={`选择${label}`}
                 className={cn(
-                  "absolute rounded-[18px] outline-none transition active:scale-[0.985] focus-visible:ring-2 focus-visible:ring-[#f4ead7]",
-                  selected && "shadow-[0_10px_18px_rgba(72,45,24,0.12),inset_0_0_0_1px_rgba(247,240,226,0.78)]"
+                  "absolute rounded-[18px] outline-none transition-all duration-200 ease-out",
+                  "active:scale-95 active:brightness-95",
+                  "focus-visible:ring-2 focus-visible:ring-[#f4ead7]",
+                  selected
+                    ? "scale-[1.03] shadow-[0_6px_20px_rgba(72,45,24,0.18),inset_0_0_0_2px_rgba(139,154,107,0.5)]"
+                    : "hover:scale-[1.02] hover:shadow-[0_4px_12px_rgba(72,45,24,0.1)]"
                 )}
                 style={{
                   left: position.left,
@@ -174,7 +186,12 @@ export function CreatePage() {
                   height: position.height
                 }}
               >
-                {selected ? <span className={cn("absolute inset-0 rounded-[18px]", position.selectedTint)} /> : null}
+                {selected ? (
+                  <span className={cn(
+                    "absolute inset-0 rounded-[18px] border-2 border-[#8b9a6b]/40",
+                    position.selectedTint
+                  )} />
+                ) : null}
                 <span className="sr-only">{label}</span>
               </button>
             );
@@ -186,8 +203,10 @@ export function CreatePage() {
             onClick={handleGenerate}
             disabled={!canGenerate}
             className={cn(
-              "absolute left-[13.6%] top-[88.4%] flex h-[8.2%] w-[72.2%] items-center justify-end rounded-[20px] px-[11%] outline-none transition focus-visible:ring-2 focus-visible:ring-[#f4ead7]",
-              canGenerate ? "active:scale-[0.985]" : "cursor-not-allowed opacity-70"
+              "absolute left-[13.6%] top-[88.4%] flex h-[8.2%] w-[72.2%] items-center justify-end rounded-[20px] px-[11%] outline-none transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-[#f4ead7]",
+              canGenerate
+                ? "active:scale-[0.96] active:shadow-[inset_0_2px_6px_rgba(72,45,24,0.2)] hover:scale-[1.01] hover:shadow-[0_4px_16px_rgba(72,45,24,0.15)]"
+                : "cursor-not-allowed opacity-60"
             )}
           />
         </div>

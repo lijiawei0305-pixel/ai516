@@ -376,3 +376,41 @@ export const createAssetUploadUrlResponseSchema = z.object({
   publicUrl: z.string().url().nullable().optional(),
   expiresAt: isoDateTimeSchema
 });
+
+export const listRoomsResponseSchema = z.object({
+  rooms: z.array(
+    z.object({
+      id: idSchema,
+      roomTitle: z.string(),
+      publicTitle: z.string(),
+      visibility: roomVisibilitySchema,
+      status: z.enum(["draft", "active", "archived", "deleted"]),
+      createdAt: isoDateTimeSchema
+    })
+  )
+});
+
+export const createShareRequestSchema = z.object({
+  targetUserId: idSchema.nullable().optional(),
+  expiresInHours: z.number().int().min(1).max(720).nullable().optional()
+});
+
+export const createShareResponseSchema = z.object({
+  shareId: idSchema,
+  shareToken: z.string().min(24),
+  shareUrl: z.string(),
+  expiresAt: isoDateTimeSchema.nullable()
+});
+
+export const listSharesResponseSchema = z.object({
+  shares: z.array(
+    z.object({
+      id: idSchema,
+      shareToken: z.string(),
+      shareUrl: z.string(),
+      targetUserId: idSchema.nullable(),
+      createdAt: isoDateTimeSchema,
+      expiresAt: isoDateTimeSchema.nullable()
+    })
+  )
+});

@@ -244,8 +244,16 @@ export async function generateOpenAiCompatibleImage(
   config: AiProviderConfig,
   request: ImageGenerationRequest
 ): Promise<GeneratedImageSource> {
+  const imageConfig: AiProviderConfig = config.imageBaseUrl
+    ? {
+        ...config,
+        baseUrl: config.imageBaseUrl,
+        apiKey: config.imageApiKey ?? config.apiKey
+      }
+    : config;
+
   if (config.imageGenerationMode === "images_generations") {
-    const payload = await postJson<unknown>(config, "/images/generations", {
+    const payload = await postJson<unknown>(imageConfig, "/images/generations", {
       model: config.imageModel,
       prompt: request.prompt,
       n: 1,
@@ -255,7 +263,7 @@ export async function generateOpenAiCompatibleImage(
     return extractGeneratedImageSource(payload);
   }
 
-  const payload = await postJson<unknown>(config, "/chat/completions", {
+  const payload = await postJson<unknown>(imageConfig, "/chat/completions", {
     model: config.imageModel,
     messages: [
       {

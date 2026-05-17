@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -12,7 +13,6 @@ import {
   Mail,
   MessageCircle,
   Moon,
-  Sparkles,
   X
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
@@ -144,43 +144,14 @@ export function MiniatureHouse({
   return (
     <div className="absolute inset-x-0 top-0 h-[435px]">
       <div className="absolute left-1/2 top-0 h-[406px] w-[96%] -translate-x-1/2">
-        <div className="absolute inset-x-0 bottom-0 h-[340px] bg-[#b58962] shadow-paper [clip-path:polygon(3%_27%,50%_0,97%_27%,97%_100%,3%_100%)]">
-          <div className="absolute inset-0 bg-[repeating-linear-gradient(90deg,rgba(60,36,20,0.24)_0_2px,transparent_2px_42px),linear-gradient(180deg,#c9a077_0%,#9b6b48_56%,#70452d_100%)]" />
-          <div className="absolute left-0 right-0 top-[59%] h-[41%] bg-[repeating-linear-gradient(150deg,rgba(48,30,18,0.28)_0_2px,transparent_2px_36px),linear-gradient(180deg,#8b5d3b,#70472f)]" />
-          <div className="absolute left-[8%] top-[28%] h-[22%] w-[19%] border-4 border-[#70472d] bg-[#f2c06c]/30 shadow-insetPaper">
-            <div className="grid h-full w-full grid-cols-2 gap-1 p-1">
-              <span className="bg-cream/38" />
-              <span className="bg-cream/30" />
-              <span className="bg-cream/32" />
-              <span className="bg-cream/25" />
-            </div>
-          </div>
-          <div className="absolute right-[10%] top-[22%] h-[25%] w-[25%] border-4 border-[#70472d] bg-[#202a36] shadow-sticker">
-            <Moon className="absolute left-8 top-4 h-9 w-9 text-[#ffd976]" />
-            <Sparkles className="absolute bottom-5 right-5 h-4 w-4 text-[#ffd976]" />
-          </div>
-          <div className="absolute left-[31%] top-[34%] h-[22%] w-[32%] bg-[#775033] shadow-sticker">
-            <div className="absolute -top-4 left-5 h-7 w-16 bg-sage/80" />
-            <div className="absolute bottom-2 left-4 h-5 w-16 bg-parchment/70" />
-            <div className="absolute bottom-9 right-4 h-10 w-12 bg-sage/80" />
-          </div>
-          <div className="absolute bottom-[22%] left-1/2 h-[18%] w-[38%] -translate-x-1/2 rounded bg-[#765036] shadow-paper">
-            <div className="absolute left-3 top-2 h-4 w-10 rounded-full bg-cream/65" />
-            <div className="absolute right-4 top-2 h-5 w-8 rounded-full bg-parchment/80" />
-            <div className="absolute bottom-2 left-1/2 h-2 w-28 -translate-x-1/2 bg-coffee/24" />
-          </div>
-          <div className="absolute bottom-[16%] left-[16%] h-[18%] w-[12%] bg-[#7a5134] shadow-sticker">
-            <div className="absolute -top-4 left-1 h-7 w-10 rounded-t-full bg-[#6d8a6a]" />
-          </div>
-          <div className="absolute bottom-[17%] right-[16%] h-[18%] w-[13%] bg-[#7a5134] shadow-sticker">
-            <div className="absolute -top-5 left-1 h-7 w-11 rounded-t-full bg-parchment" />
-          </div>
-          <motion.div
-            animate={{ opacity: [0.65, 1, 0.7], scale: [0.96, 1.06, 0.98] }}
-            transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute left-1/2 top-[20%] h-12 w-12 -translate-x-1/2 rounded-full bg-[#ffd470] shadow-[0_0_28px_rgba(255,205,96,0.95)]"
+        <div className="relative h-full w-full">
+          <Image
+            src="/assets/prototype/docx-derived/play-house-clean.png"
+            alt={room.roomTitle}
+            fill
+            sizes="400px"
+            className="pointer-events-none object-contain"
           />
-          <PaperPetButton onOpen={onPetOpen} petType={room.pet.type} petName={room.pet.name} />
         </div>
 
         {room.objects.map((object, index) => (
@@ -207,6 +178,8 @@ export function MiniatureHouse({
             </span>
           </button>
         ) : null}
+
+        <PaperPetButton onOpen={onPetOpen} petType={room.pet.type} petName={room.pet.name} />
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { ImageOff, Sparkle } from "lucide-react";
+import { useState, useCallback } from "react";
+import { ImageOff, RefreshCw, Sparkle } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import type { MiniRoomLayer, MiniRoomObject } from "@/lib/adapters/roomPublicDataAdapter";
 import { cn } from "@/lib/utils";
@@ -42,6 +42,7 @@ export function RoomObjectSprite({
   onSelect
 }: RoomObjectSpriteProps) {
   const [imageFailed, setImageFailed] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
   const [raised, setRaised] = useState(false);
   const reduceMotion = useReducedMotion();
   const scale = scaleFromDepth(object);
@@ -61,6 +62,12 @@ export function RoomObjectSprite({
         scale: [1, 1.005, 0.995, 1],
         rotate: plantLike ? [0, 1.5, -1.5, 0] : 0
       };
+
+  const handleRetry = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setImageFailed(false);
+    setRetryKey((k) => k + 1);
+  }, []);
 
   return (
     <motion.button
@@ -139,9 +146,11 @@ export function RoomObjectSprite({
             selected={selected}
             reduceMotion={reduceMotion}
             onAnyError={() => setImageFailed(true)}
+            retryKey={retryKey}
           />
         ) : hasImage ? (
           <img
+            key={retryKey}
             src={object.assetUrl ?? ""}
             alt={object.name}
             draggable={false}
@@ -159,13 +168,21 @@ export function RoomObjectSprite({
           />
         ) : (
           <span
-            className="torn-edge paper-grain absolute bottom-1 left-1/2 flex h-20 w-16 -translate-x-1/2 items-center justify-center bg-cream/88 text-coffee/55 shadow-[var(--room-sprite-shadow),var(--room-sprite-shadow-soft),inset_-8px_-10px_0_rgba(138,91,54,0.12)]"
+            className="torn-edge paper-grain absolute bottom-1 left-1/2 flex h-20 w-16 -translate-x-1/2 flex-col items-center justify-center gap-1 bg-cream/88 text-coffee/55 shadow-[var(--room-sprite-shadow),var(--room-sprite-shadow-soft),inset_-8px_-10px_0_rgba(138,91,54,0.12)]"
             style={{
               clipPath: "polygon(18% 8%, 88% 0, 100% 76%, 46% 100%, 0 72%)"
             }}
           >
             <span className="absolute bottom-0 left-1/2 h-3 w-11 -translate-x-1/2 rounded-full bg-[#2d1b0f]/16 blur-[4px]" />
-            <ImageOff className="relative h-6 w-6" strokeWidth={1.5} />
+            <ImageOff className="relative h-5 w-5" strokeWidth={1.5} />
+            <button
+              type="button"
+              onClick={handleRetry}
+              className="pointer-events-auto relative flex h-5 w-5 items-center justify-center rounded-full bg-warm-orange/60 text-cream transition hover:bg-warm-orange/80"
+              aria-label="重新加载图片"
+            >
+              <RefreshCw className="h-3 w-3" strokeWidth={2} />
+            </button>
             <Sparkle className="absolute right-2 top-2 h-3 w-3 text-warm-orange/65" strokeWidth={1.5} />
           </span>
         )}
@@ -220,7 +237,8 @@ function ObjectLayerStack({
   discovered,
   selected,
   reduceMotion,
-  onAnyError
+  onAnyError,
+  retryKey
 }: {
   layers: MiniRoomLayer[];
   alt: string;
@@ -228,6 +246,7 @@ function ObjectLayerStack({
   selected: boolean;
   reduceMotion: boolean | null;
   onAnyError: () => void;
+  retryKey: number;
 }) {
   const sorted = [...layers].sort(
     (a, b) => LAYER_DRAW_ORDER[a.role] - LAYER_DRAW_ORDER[b.role]
@@ -253,7 +272,7 @@ function ObjectLayerStack({
 
         return (
           <motion.img
-            key={layer.role}
+            key={`${layer.role}-${retryKey}`}
             src={layer.assetUrl}
             alt={alt}
             draggable={false}

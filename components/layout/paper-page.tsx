@@ -30,7 +30,7 @@ export function PaperPage({
         fill
         priority
         sizes="430px"
-        className="absolute inset-0 h-full w-full object-cover"
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover"
       />
       <div className="absolute inset-0 bg-cream/10" />
       {withBinder ? (

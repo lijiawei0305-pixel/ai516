@@ -48,10 +48,16 @@ function includesSensitivePhrase(value: string, sentence: string) {
     return normalizedValue.includes(normalizedSentence);
   }
 
-  return (
-    normalizedValue.includes(normalizedSentence) ||
-    normalizedSentence.includes(normalizedValue)
-  );
+  if (normalizedValue.includes(normalizedSentence)) {
+    return true;
+  }
+
+  // Only flag if the value reproduces a significant portion of the sentence
+  if (normalizedValue.length >= 6 && normalizedSentence.includes(normalizedValue)) {
+    return true;
+  }
+
+  return false;
 }
 
 function assertNoOriginalSentenceLeak(

@@ -68,7 +68,7 @@ export function GeneratingPage() {
             fill
             priority
             sizes="430px"
-            className="object-cover"
+            className="pointer-events-none object-cover"
           />
 
           <div aria-live="polite" className="sr-only">

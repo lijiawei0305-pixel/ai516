@@ -13,6 +13,8 @@ export type AiProviderConfig = {
   chatModel: string;
   imageModel: string;
   imageGenerationMode: ImageGenerationMode;
+  imageBaseUrl?: string;
+  imageApiKey?: string;
 };
 
 const envConfigSchema = z.object({
@@ -31,7 +33,15 @@ function readEnv(name: string) {
 export function normalizeOpenAiBaseUrl(baseUrl: string) {
   const trimmed = baseUrl.replace(/\/+$/, "");
 
-  return trimmed.endsWith("/v1") ? trimmed : `${trimmed}/v1`;
+  if (trimmed.endsWith("/v1")) {
+    return trimmed;
+  }
+
+  if (/\/v\d+$/.test(trimmed)) {
+    return trimmed;
+  }
+
+  return `${trimmed}/v1`;
 }
 
 export function getAiProviderConfigFromEnv(): AiProviderConfig | null {
@@ -66,8 +76,17 @@ export function getAiProviderConfigFromEnv(): AiProviderConfig | null {
     return null;
   }
 
+  const imageBaseUrlRaw =
+    readEnv("HEART_CABIN_IMAGE_BASE_URL") ?? readEnv("OPENAI_IMAGE_BASE_URL");
+  const imageApiKeyRaw =
+    readEnv("HEART_CABIN_IMAGE_API_KEY") ?? readEnv("OPENAI_IMAGE_API_KEY");
+
   return {
     ...parsed.data,
-    baseUrl: normalizeOpenAiBaseUrl(parsed.data.baseUrl)
+    baseUrl: normalizeOpenAiBaseUrl(parsed.data.baseUrl),
+    imageBaseUrl: imageBaseUrlRaw
+      ? normalizeOpenAiBaseUrl(imageBaseUrlRaw)
+      : undefined,
+    imageApiKey: imageApiKeyRaw ?? undefined
   };
 }

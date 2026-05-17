@@ -12,7 +12,15 @@
       "mcp__fetch__fetch",
       "Bash(git clone *)",
       "Bash(chmod +x ~/.claude/skills/gpt-image-2/scripts/gpt_image.py)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(ln -sf ~/.claude/skills/gpt-image-2 ~/.codex/skills/gpt-image-2)",
+      "Bash(npx next *)",
+      "Bash(curl *)",
+      "Bash(npx --yes playwright screenshot --viewport-size=\"430,932\" http://localhost:3000 /tmp/home-screenshot.png)",
+      "Bash(npx playwright *)",
+      "WebFetch(domain:docs.siliconflow.cn)",
+      "Bash(python3 -m json.tool)",
+      "Bash(python3 -c ' *)"
     ]
   }
 }

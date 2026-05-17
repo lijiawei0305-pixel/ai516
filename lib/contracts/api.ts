@@ -7,6 +7,8 @@ import {
   createDiaryAccessRequestResponseSchema,
   createDiaryCommentRequestSchema,
   createDiaryCommentResponseSchema,
+  createShareRequestSchema,
+  createShareResponseSchema,
   generateRoomRequestSchema,
   generateRoomResponseSchema,
   getDiaryResponseSchema,
@@ -16,6 +18,8 @@ import {
   getOwnerResultsResponseSchema,
   getRoomPlayParamsSchema,
   getRoomPlayResponseSchema,
+  listRoomsResponseSchema,
+  listSharesResponseSchema,
   petChatRequestSchema,
   petChatResponseSchema,
   respondDiaryAccessRequestParamsSchema,
@@ -78,6 +82,12 @@ export type CreateAssetUploadUrlResponse = z.infer<
   typeof createAssetUploadUrlResponseSchema
 >;
 
+export type ListRoomsResponse = z.infer<typeof listRoomsResponseSchema>;
+
+export type CreateShareRequest = z.infer<typeof createShareRequestSchema>;
+export type CreateShareResponse = z.infer<typeof createShareResponseSchema>;
+export type ListSharesResponse = z.infer<typeof listSharesResponseSchema>;
+
 export type ApiRouteContract<Request, Response> = {
   method: "GET" | "POST";
   path: string;
@@ -89,6 +99,9 @@ export type ApiRouteContract<Request, Response> = {
 export type HeartCabinApiContract = {
   generateRoom: ApiRouteContract<GenerateRoomRequest, GenerateRoomResponse>;
   getRoomPlay: ApiRouteContract<never, GetRoomPlayResponse>;
+  listRooms: ApiRouteContract<never, ListRoomsResponse>;
+  createShare: ApiRouteContract<CreateShareRequest, CreateShareResponse>;
+  listShares: ApiRouteContract<never, ListSharesResponse>;
   submitGuess: ApiRouteContract<SubmitGuessRequest, SubmitGuessResponse>;
   getGuessResult: ApiRouteContract<never, GetGuessResultResponse>;
   getOwnerResults: ApiRouteContract<never, GetOwnerResultsResponse>;
