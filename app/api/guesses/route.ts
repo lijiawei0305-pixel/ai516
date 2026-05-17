@@ -180,7 +180,7 @@ export async function POST(request: Request) {
       missedKeywords: judgeResult.missedKeywords,
       revealLevel: judgeResult.revealLevel,
       partialOriginalSentence: judgeResult.partialOriginalSentence,
-      resultUrl: `/guesses/${guessId}/result`
+      resultUrl: `/result/${guessId}`
     },
     201
   );

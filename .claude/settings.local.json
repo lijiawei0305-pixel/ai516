@@ -42,7 +42,8 @@
       "Bash(scp *)",
       "Bash(openssl rand *)",
       "Bash(node *)",
-      "Bash(lsof -ti:3000)"
+      "Bash(lsof -ti:3000)",
+      "Bash(grep -v -E \"\\(node_modules|\\\\.test\\\\.|\\\\.spec\\\\.|__tests__|__mocks__|\\\\.mock\\\\.|test/|tests/|spec/|\\\\.stories\\\\.|\\\\.storybook|\\\\.d\\\\.ts$|dist/|build/|\\\\.next/|coverage/\\)\")"
     ]
   }
 }

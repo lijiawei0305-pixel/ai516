@@ -173,7 +173,7 @@ function createSupabaseRepository(config: {
         visualTheme: room.visual_theme,
         hiddenMeaning: room.hidden_meaning,
         pet: extractPet(room.room_json),
-        objects: objects.length > 0 ? objects : demoObjects
+        objects
       };
     },
     async loadGuessAttemptContext(guessAttemptId) {

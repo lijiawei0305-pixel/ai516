@@ -121,6 +121,22 @@ function OccluderAsset({ asset }: { asset: MiniRoomStageAsset }) {
 
 import { prototypeBackgrounds } from "@/lib/prototype-backgrounds";
 
+function EffectLayer() {
+  return (
+    <div className="pointer-events-none absolute inset-0 z-[7000] overflow-hidden rounded-lg">
+      {/* Warm color grading to tie assets to the background */}
+      <div className="absolute inset-0 bg-[#f2a65a] mix-blend-multiply opacity-10" />
+      
+      {/* Tilt-shift / Vignette blur top and bottom */}
+      <div className="absolute top-0 inset-x-0 h-[15%] bg-gradient-to-b from-black/40 to-transparent backdrop-blur-[2px] mask-image-[linear-gradient(to_bottom,black,transparent)]" />
+      <div className="absolute bottom-0 inset-x-0 h-[20%] bg-gradient-to-t from-[#2d1b0f]/60 to-transparent backdrop-blur-[3px] mask-image-[linear-gradient(to_top,black,transparent)]" />
+      
+      {/* Soft inner shadow for vignette */}
+      <div className="absolute inset-0 shadow-[inset_0_0_60px_rgba(40,20,10,0.4)]" />
+    </div>
+  );
+}
+
 export function LayeredMiniRoomStage({
   room,
   selectedObject,
@@ -178,6 +194,7 @@ export function LayeredMiniRoomStage({
           <OccluderAsset key={asset.id} asset={asset} />
         ))}
       </div>
+      <EffectLayer />
     </div>
   );
 }

@@ -243,7 +243,7 @@ export async function submitGuessService(
     missedKeywords: affinityScore >= 70 ? [] : ["真实原因"],
     revealLevel: affinityScore >= 70 ? 2 : 1,
     partialOriginalSentence: "我其实有点...",
-    resultUrl: `/guesses/${guessId}/result`
+    resultUrl: `/result/${guessId}`
   };
 }
 

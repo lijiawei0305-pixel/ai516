@@ -59,8 +59,8 @@ export function RoomObjectSprite({
   const idleAnimate = reduceMotion
     ? undefined
     : {
-        scale: [1, 1.005, 0.995, 1],
-        rotate: plantLike ? [0, 1.5, -1.5, 0] : 0
+        scale: [1, 1.01, 0.99, 1],
+        rotate: plantLike ? [0, 0.5, -0.5, 0] : [0, 0.2, -0.2, 0]
       };
 
   const handleRetry = useCallback((e: React.MouseEvent) => {
@@ -75,9 +75,9 @@ export function RoomObjectSprite({
       aria-label={`查看线索：${object.name}`}
       onClick={() => onSelect(object)}
       initial={{ opacity: 0, y: 8, scale: 0.97 }}
-      animate={{ opacity: 1, y: selected ? -6 : 0, scale: 1 }}
-      whileHover={{ y: -5 }}
-      whileFocus={{ y: -5 }}
+      animate={{ opacity: 1, y: selected ? -8 : 0, scale: 1 }}
+      whileHover={{ y: -8 }}
+      whileFocus={{ y: -8 }}
       whileTap={{ y: -2, scale: 0.98 }}
       onHoverStart={() => setRaised(true)}
       onHoverEnd={() => setRaised(false)}
@@ -108,12 +108,12 @@ export function RoomObjectSprite({
             height: shadow.height * scale
           }}
           animate={{
-            opacity: isRaised ? Math.min(0.22, shadow.opacity * 0.72) : shadow.opacity,
-            x: "-50%",
-            y: shadow.offsetY + (isRaised ? 4 : 0),
+            opacity: isRaised ? Math.min(0.18, shadow.opacity * 0.6) : shadow.opacity,
+            x: "calc(-50% + 8px)",
+            y: shadow.offsetY + (isRaised ? 8 : 0),
             scaleX: 1.08 + object.position.y / 360 + (isRaised ? 0.18 : 0),
             scaleY: isRaised ? 1.1 : 1,
-            filter: `blur(${shadow.blur + (isRaised ? 2 : 0)}px)`
+            filter: `blur(${shadow.blur + (isRaised ? 6 : 0)}px)`
           }}
           transition={{ duration: 0.22, ease: "easeOut" }}
         />
