@@ -30,6 +30,7 @@ import { PaperPage } from "@/components/layout/paper-page";
 import type { PublicRoomPlayData, RoomObject } from "@/lib/contracts";
 import { mockRoomPublicData } from "@/lib/mock-room-public";
 import { cn } from "@/lib/utils";
+import { prototypeBackgrounds } from "@/lib/prototype-backgrounds";
 
 type RoomPlayPageProps = {
   roomId: string;
@@ -60,7 +61,7 @@ export function RoomPlayPage({ roomId }: RoomPlayPageProps) {
 
   return (
     <AppShell statusBarDark>
-      <PaperPage className="px-4 pt-16" withBinder={false}>
+      <PaperPage backgroundSrc={prototypeBackgrounds.play} className="px-4 pt-14" withBinder={false}>
         <header className="relative text-center">
           <HanddrawnIconButton
             icon={<ArrowLeft className="h-7 w-7" />}

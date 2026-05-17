@@ -14,6 +14,7 @@ import {
   createDefaultAdminLlmConfigDraft,
   type AdminLlmConfigDraft
 } from "@/lib/schemas/adminLlmConfig";
+import { prototypeBackgrounds } from "@/lib/prototype-backgrounds";
 
 export default function Page() {
   const router = useRouter();
@@ -59,7 +60,7 @@ export default function Page() {
 
   return (
     <AppShell>
-      <PaperPage className="pt-14" innerClassName="pb-10">
+      <PaperPage backgroundSrc={prototypeBackgrounds.create} className="pt-14" innerClassName="pb-10">
         <header className="relative mb-5 text-center">
           <HanddrawnIconButton
             icon={<ArrowLeft className="h-6 w-6" />}

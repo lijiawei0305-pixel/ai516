@@ -13,6 +13,7 @@ import { PaperPage } from "@/components/layout/paper-page";
 import { MiniDoor } from "@/components/heart-cabin/decorations";
 import { useCreateRoomDraft } from "@/lib/use-create-room-draft";
 import { cn } from "@/lib/utils";
+import { prototypeBackgrounds } from "@/lib/prototype-backgrounds";
 
 export function GeneratingPage() {
   const router = useRouter();
@@ -102,7 +103,7 @@ export function GeneratingPage() {
 
   return (
     <AppShell>
-      <PaperPage className="pt-16">
+      <PaperPage backgroundSrc={prototypeBackgrounds.generating} className="pt-14">
         <header className="relative mb-6 text-center">
           <HanddrawnIconButton
             icon={<ArrowLeft className="h-7 w-7" />}

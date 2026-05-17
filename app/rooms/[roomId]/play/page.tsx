@@ -11,6 +11,7 @@ import { PaperPage } from "@/components/layout/paper-page";
 import { LayeredMiniRoom } from "@/components/room/LayeredMiniRoom";
 import type { GetRoomPlayResponse } from "@/lib/contracts/api";
 import { adaptRoomPublicData } from "@/lib/adapters/roomPublicDataAdapter";
+import { prototypeBackgrounds } from "@/lib/prototype-backgrounds";
 
 type LoadState =
   | { status: "loading" }
@@ -66,7 +67,7 @@ export default function RoomPlayPage() {
 
   return (
     <AppShell>
-      <PaperPage className="px-4 pt-16" withBinder={false}>
+      <PaperPage backgroundSrc={prototypeBackgrounds.play} className="px-4 pt-14" withBinder={false}>
         <HanddrawnIconButton
           icon={<ArrowLeft className="h-7 w-7" />}
           label="返回"

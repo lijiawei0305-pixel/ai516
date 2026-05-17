@@ -7,7 +7,12 @@
       "Bash(npm install *)",
       "Bash(echo \"EXITCODE_TS=$?\")",
       "Bash(echo \"EXITCODE_TEST=$?\")",
-      "Bash(echo \"EXIT=$?\")"
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(gh repo *)",
+      "mcp__fetch__fetch",
+      "Bash(git clone *)",
+      "Bash(chmod +x ~/.claude/skills/gpt-image-2/scripts/gpt_image.py)",
+      "Bash(npx tsc *)"
     ]
   }
 }

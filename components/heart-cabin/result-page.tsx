@@ -28,6 +28,7 @@ import { MiniCabin } from "@/components/heart-cabin/decorations";
 import type { OwnerResultViewData, PublicGuessResult } from "@/lib/contracts";
 import { mockGuessResult, mockOwnerResultViewData } from "@/lib/mock-guess-result";
 import { useGuessFlow } from "@/lib/use-guess-flow";
+import { prototypeBackgrounds } from "@/lib/prototype-backgrounds";
 
 type ResultPageProps = {
   guessId: string;
@@ -57,7 +58,7 @@ export function ResultPage({ guessId }: ResultPageProps) {
 
   return (
     <AppShell statusBarDark topChrome={<ResultTopBar title={result.title} />}>
-      <PaperPage className="pt-24">
+      <PaperPage backgroundSrc={prototypeBackgrounds.result} className="pt-20">
         <section className="relative">
           <Tape className="left-28 top-0 w-32 rotate-[14deg]" />
           <PolaroidCard className="left-1 top-5 z-20 w-40" caption="">

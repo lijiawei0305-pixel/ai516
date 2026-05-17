@@ -14,6 +14,7 @@ import { PaperPage } from "@/components/layout/paper-page";
 import { mockGuessPageData, mockSubmitGuess } from "@/lib/mock-guess-result";
 import { useGuessFlow } from "@/lib/use-guess-flow";
 import { cn } from "@/lib/utils";
+import { prototypeBackgrounds } from "@/lib/prototype-backgrounds";
 
 type GuessPageProps = {
   roomId: string;
@@ -49,7 +50,7 @@ export function GuessPage({ roomId }: GuessPageProps) {
 
   return (
     <AppShell>
-      <PaperPage className="pt-16">
+      <PaperPage backgroundSrc={prototypeBackgrounds.result} className="pt-14">
         <Tape className="left-16 top-11" />
         <header className="relative mb-6 text-center">
           <HanddrawnIconButton

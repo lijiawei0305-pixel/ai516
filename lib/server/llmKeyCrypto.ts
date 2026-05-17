@@ -5,6 +5,10 @@ const KEY_ENV_NAMES = [
   "LLM_PROVIDER_ENCRYPTION_KEY"
 ];
 
+const DEV_FALLBACK_KEY = "heart-cabin-dev-llm-key";
+
+let warnedAboutDevFallback = false;
+
 function getRawSecretKey() {
   for (const name of KEY_ENV_NAMES) {
     const value = process.env[name];
@@ -19,7 +23,18 @@ function getRawSecretKey() {
     return fallback.trim();
   }
 
-  return "heart-cabin-dev-llm-key";
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("LLM_ENCRYPTION_KEY_REQUIRED");
+  }
+
+  if (!warnedAboutDevFallback) {
+    warnedAboutDevFallback = true;
+    console.warn(
+      "[llmKeyCrypto] 未检测到 HEART_CABIN_LLM_SETTINGS_ENCRYPTION_KEY / LLM_PROVIDER_ENCRYPTION_KEY / SUPABASE_SERVICE_ROLE_KEY，开发模式下使用内置兜底密钥。生产环境必须配置上述任一变量，否则启动会抛出 LLM_ENCRYPTION_KEY_REQUIRED。"
+    );
+  }
+
+  return DEV_FALLBACK_KEY;
 }
 
 function deriveKeyMaterial() {

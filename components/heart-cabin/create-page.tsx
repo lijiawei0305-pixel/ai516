@@ -13,6 +13,7 @@ import { NotebookTextarea } from "@/components/ui/notebook-textarea";
 import { EnvelopeImageUpload } from "@/components/heart-cabin/envelope-image-upload";
 import { Stamp } from "@/components/heart-cabin/decorations";
 import type { MoodTag } from "@/lib/contracts";
+import { prototypeBackgrounds } from "@/lib/prototype-backgrounds";
 import { useCreateRoomDraft } from "@/lib/use-create-room-draft";
 import { cn } from "@/lib/utils";
 
@@ -40,7 +41,7 @@ export function CreatePage() {
 
   return (
     <AppShell>
-      <PaperPage className="pt-16">
+      <PaperPage backgroundSrc={prototypeBackgrounds.create} className="pt-14">
         <Tape className="left-16 top-11" />
         <header className="relative mb-6 text-center">
           <HanddrawnIconButton

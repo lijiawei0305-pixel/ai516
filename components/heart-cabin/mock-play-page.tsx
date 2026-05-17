@@ -8,13 +8,14 @@ import { TornPaperCard } from "@/components/handbook/torn-paper-card";
 import { AppShell } from "@/components/layout/app-shell";
 import { PaperPage } from "@/components/layout/paper-page";
 import { MiniCabin, Stamp } from "@/components/heart-cabin/decorations";
+import { prototypeBackgrounds } from "@/lib/prototype-backgrounds";
 
 export function MockPlayPage() {
   const router = useRouter();
 
   return (
     <AppShell>
-      <PaperPage className="pt-16">
+      <PaperPage backgroundSrc={prototypeBackgrounds.play} className="pt-14">
         <header className="relative mb-8 text-center">
           <HanddrawnIconButton
             icon={<ArrowLeft className="h-7 w-7" />}
