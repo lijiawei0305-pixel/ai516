@@ -43,7 +43,11 @@
       "Bash(openssl rand *)",
       "Bash(node *)",
       "Bash(lsof -ti:3000)",
-      "Bash(grep -v -E \"\\(node_modules|\\\\.test\\\\.|\\\\.spec\\\\.|__tests__|__mocks__|\\\\.mock\\\\.|test/|tests/|spec/|\\\\.stories\\\\.|\\\\.storybook|\\\\.d\\\\.ts$|dist/|build/|\\\\.next/|coverage/\\)\")"
+      "Bash(grep -v -E \"\\(node_modules|\\\\.test\\\\.|\\\\.spec\\\\.|__tests__|__mocks__|\\\\.mock\\\\.|test/|tests/|spec/|\\\\.stories\\\\.|\\\\.storybook|\\\\.d\\\\.ts$|dist/|build/|\\\\.next/|coverage/\\)\")",
+      "WebFetch(domain:wu.ccchhxx.top)",
+      "Bash(grep -E \"\\(Done|online|errored|[0-9]{3}$\\)\")",
+      "Bash(npx supabase *)",
+      "Bash(PGPASSWORD=weSJ7rKEjLvmNdrj psql *)"
     ]
   }
 }

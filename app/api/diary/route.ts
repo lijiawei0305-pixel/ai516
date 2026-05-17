@@ -17,6 +17,9 @@ export async function GET(request: Request) {
   const config = getSupabaseServerConfig();
 
   if (!config) {
+    if (process.env.NODE_ENV === "production") {
+      return apiError("service_unavailable", "数据库服务未配置", 503);
+    }
     return jsonResponse(getDiaryResponseSchema, { entries: [] });
   }
 

@@ -288,9 +288,11 @@ function createSupabaseRepository(config: {
   };
 }
 
-function createRepository() {
+function createRepository(): PetChatRepository | null {
   const config = getSupabaseConfig();
-  return config ? createSupabaseRepository(config) : demoRepository;
+  if (config) return createSupabaseRepository(config);
+  if (process.env.NODE_ENV === "production") return null;
+  return demoRepository;
 }
 
 function extractChatCompletionText(response: unknown) {
@@ -361,10 +363,22 @@ export async function POST(request: Request) {
     return parsed.response;
   }
 
+  const repository = createRepository();
+
+  if (!repository) {
+    return apiError("service_unavailable", "数据库服务未配置", 503);
+  }
+
+  const llmClient = createOpenAiStructuredClient();
+
+  if (!llmClient && process.env.NODE_ENV === "production") {
+    return apiError("service_unavailable", "AI 服务未配置", 503);
+  }
+
   try {
     const response = await handlePetChat(parsed.data, {
-      repository: createRepository(),
-      llmClient: createOpenAiStructuredClient()
+      repository,
+      llmClient
     });
 
     return jsonResponse(petChatResponseSchema, response);

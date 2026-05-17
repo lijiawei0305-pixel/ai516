@@ -140,6 +140,9 @@ async function getPersistedRoomPlay(
   const config = getSupabaseServerConfig();
 
   if (!config) {
+    if (process.env.NODE_ENV === "production") {
+      return null;
+    }
     return getRoomPlayService(roomId);
   }
 

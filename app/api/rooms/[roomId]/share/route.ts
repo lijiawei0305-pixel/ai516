@@ -31,6 +31,9 @@ export async function GET(_request: Request, context: RouteContext) {
   const config = getSupabaseServerConfig();
 
   if (!config) {
+    if (process.env.NODE_ENV === "production") {
+      return apiError("service_unavailable", "数据库服务未配置", 503);
+    }
     return jsonResponse(listSharesResponseSchema, { shares: [] });
   }
 
@@ -79,6 +82,9 @@ export async function POST(request: Request, context: RouteContext) {
   const config = getSupabaseServerConfig();
 
   if (!config) {
+    if (process.env.NODE_ENV === "production") {
+      return apiError("service_unavailable", "数据库服务未配置", 503);
+    }
     const token = generateShareToken();
 
     return jsonResponse(

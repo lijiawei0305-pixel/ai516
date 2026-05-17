@@ -30,7 +30,7 @@ async function persistGeneratedRoom(
   const supabaseConfig = getSupabaseServerConfig();
   const creatorId = getRequestUserId(request);
 
-  if (!supabaseConfig || !creatorId) {
+  if (!supabaseConfig) {
     return {
       roomId: input.roomId,
       createdAt
@@ -48,7 +48,7 @@ async function persistGeneratedRoom(
       method: "POST",
       body: JSON.stringify({
         id: input.roomId,
-        creator_id: creatorId,
+        creator_id: creatorId ?? null,
         original_sentence: input.sentence,
         hidden_meaning: generated.room.hiddenMeaning,
         room_title: generated.room.roomTitle,
@@ -85,6 +85,9 @@ export async function POST(request: Request) {
   const supabaseConfig = getSupabaseServerConfig();
 
   if (!aiConfig || !supabaseConfig) {
+    if (process.env.NODE_ENV === "production") {
+      return apiError("service_unavailable", "AI 或数据库服务未配置", 503);
+    }
     const mockResult = await generateRoomService(parsed.data);
     return jsonResponse(generateRoomResponseSchema, mockResult, 201);
   }

@@ -94,23 +94,32 @@ function extractChatText(payload: unknown): string {
 async function postJson<T>(
   config: AiProviderConfig,
   path: string,
-  payload: unknown
+  payload: unknown,
+  timeoutMs = 180_000
 ): Promise<T> {
-  const response = await fetch(buildUrl(config, path), {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${config.apiKey}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
 
-  if (!response.ok) {
-    const body = await response.text().catch(() => "");
-    throw new Error(`OPENAI_COMPATIBLE_${path}_${response.status}:${body}`);
+  try {
+    const response = await fetch(buildUrl(config, path), {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${config.apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
+
+    if (!response.ok) {
+      const body = await response.text().catch(() => "");
+      throw new Error(`OPENAI_COMPATIBLE_${path}_${response.status}:${body}`);
+    }
+
+    return (await response.json()) as T;
+  } finally {
+    clearTimeout(timer);
   }
-
-  return (await response.json()) as T;
 }
 
 export function createOpenAiCompatibleStructuredClient(

@@ -50,6 +50,9 @@ export async function GET(_request: Request, context: RouteContext) {
   const supabaseConfig = getSupabaseServerConfig();
 
   if (!supabaseConfig) {
+    if (process.env.NODE_ENV === "production") {
+      return apiError("service_unavailable", "数据库服务未配置", 503);
+    }
     const mockResult = await getGuessResultService(params.data.guessId);
     return jsonResponse(getGuessResultResponseSchema, mockResult);
   }

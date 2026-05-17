@@ -28,6 +28,9 @@ export async function POST(request: Request) {
   const supabaseConfig = getSupabaseServerConfig();
 
   if (!aiConfig || !supabaseConfig) {
+    if (process.env.NODE_ENV === "production") {
+      return apiError("service_unavailable", "AI 或数据库服务未配置", 503);
+    }
     const mockResult = await submitGuessService(parsed.data);
     return jsonResponse(submitGuessResponseSchema, mockResult, 201);
   }
