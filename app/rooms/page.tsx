@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { RoomsPage } from "@/components/heart-cabin/rooms-page";
 
-export default function RoomsPage() {
-  redirect("/rooms/demo-room/play");
+export default function Page() {
+  return <RoomsPage />;
 }

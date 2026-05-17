@@ -390,6 +390,17 @@ export const listRoomsResponseSchema = z.object({
   )
 });
 
+export const listPublicRoomsResponseSchema = z.object({
+  rooms: z.array(
+    z.object({
+      id: idSchema,
+      publicTitle: z.string(),
+      visualTheme: z.string(),
+      createdAt: isoDateTimeSchema
+    })
+  )
+});
+
 export const createShareRequestSchema = z.object({
   targetUserId: idSchema.nullable().optional(),
   expiresInHours: z.number().int().min(1).max(720).nullable().optional()

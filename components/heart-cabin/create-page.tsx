@@ -25,11 +25,11 @@ const tagPositions: Record<
   MoodTag,
   { left: string; top: string; width: string; height: string; selectedTint: string }
 > = {
-  想念: { left: "14.8%", top: "54.5%", width: "21%", height: "6.8%", selectedTint: "bg-[#dfe4cf]/52" },
-  压力: { left: "42.7%", top: "54.8%", width: "21.6%", height: "6.7%", selectedTint: "bg-[#ead4b2]/50" },
-  吐槽: { left: "66.6%", top: "54.6%", width: "20.7%", height: "6.8%", selectedTint: "bg-[#e5c59a]/48" },
-  暗恋: { left: "25.3%", top: "63.4%", width: "27.7%", height: "6.8%", selectedTint: "bg-[#efc8bf]/55" },
-  小确幸: { left: "54.5%", top: "63.3%", width: "24.8%", height: "6.8%", selectedTint: "bg-[#d8dcbc]/55" }
+  想念: { left: "14.8%", top: "54.5%", width: "21%", height: "6.8%", selectedTint: "bg-[#dfe4cf]/72" },
+  压力: { left: "42.7%", top: "54.8%", width: "21.6%", height: "6.7%", selectedTint: "bg-[#ead4b2]/70" },
+  吐槽: { left: "66.6%", top: "54.6%", width: "20.7%", height: "6.8%", selectedTint: "bg-[#e5c59a]/68" },
+  暗恋: { left: "25.3%", top: "63.4%", width: "27.7%", height: "6.8%", selectedTint: "bg-[#efc8bf]/72" },
+  小确幸: { left: "54.5%", top: "63.3%", width: "24.8%", height: "6.8%", selectedTint: "bg-[#d8dcbc]/72" }
 };
 
 export function CreatePage() {
@@ -188,7 +188,7 @@ export function CreatePage() {
               >
                 {selected ? (
                   <span className={cn(
-                    "absolute inset-0 rounded-[18px] border-2 border-[#8b9a6b]/40",
+                    "pointer-events-none absolute inset-0 rounded-[18px] border-2 border-[#8b9a6b]/70 shadow-[inset_0_0_8px_rgba(139,154,107,0.3)]",
                     position.selectedTint
                   )} />
                 ) : null}

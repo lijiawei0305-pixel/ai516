@@ -18,6 +18,7 @@ import {
   getOwnerResultsResponseSchema,
   getRoomPlayParamsSchema,
   getRoomPlayResponseSchema,
+  listPublicRoomsResponseSchema,
   listRoomsResponseSchema,
   listSharesResponseSchema,
   petChatRequestSchema,
@@ -83,6 +84,7 @@ export type CreateAssetUploadUrlResponse = z.infer<
 >;
 
 export type ListRoomsResponse = z.infer<typeof listRoomsResponseSchema>;
+export type ListPublicRoomsResponse = z.infer<typeof listPublicRoomsResponseSchema>;
 
 export type CreateShareRequest = z.infer<typeof createShareRequestSchema>;
 export type CreateShareResponse = z.infer<typeof createShareResponseSchema>;

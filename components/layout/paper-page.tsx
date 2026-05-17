@@ -32,12 +32,12 @@ export function PaperPage({
         sizes="430px"
         className="pointer-events-none absolute inset-0 h-full w-full object-cover"
       />
-      <div className="absolute inset-0 bg-cream/10" />
+      <div className="pointer-events-none absolute inset-0 bg-cream/10" />
       {withBinder ? (
         <>
-          <div className="absolute left-0 top-0 h-full w-3 bg-coffee/12" />
-          <div className="absolute left-3 top-44 h-16 w-5 rounded-full border-2 border-coffee/35" />
-          <div className="absolute left-2 top-[70%] h-14 w-5 rounded-full border-2 border-coffee/30 rotate-12" />
+          <div className="pointer-events-none absolute left-0 top-0 h-full w-3 bg-coffee/12" />
+          <div className="pointer-events-none absolute left-3 top-44 h-16 w-5 rounded-full border-2 border-coffee/35" />
+          <div className="pointer-events-none absolute left-2 top-[70%] h-14 w-5 rounded-full border-2 border-coffee/30 rotate-12" />
         </>
       ) : null}
       <div className={cn("relative z-10", innerClassName)}>{children}</div>
