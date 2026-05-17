@@ -13,7 +13,7 @@ import {
   X
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { HanddrawnIcons } from "@/components/handbook/handdrawn-assets";
 import { HanddrawnIconButton } from "@/components/handbook/handdrawn-icon-button";
 import { PaperButton } from "@/components/handbook/paper-button";
@@ -25,8 +25,7 @@ import { WaxSeal } from "@/components/handbook/wax-seal";
 import { AppShell } from "@/components/layout/app-shell";
 import { PaperPage } from "@/components/layout/paper-page";
 import { MiniCabin } from "@/components/heart-cabin/decorations";
-import type { OwnerResultViewData, PublicGuessResult } from "@/lib/contracts";
-import { mockGuessResult, mockOwnerResultViewData } from "@/lib/mock-guess-result";
+import type { GetGuessResultResponse } from "@/lib/contracts/api";
 import { useGuessFlow } from "@/lib/use-guess-flow";
 import { prototypeBackgrounds } from "@/lib/prototype-backgrounds";
 
@@ -34,12 +33,14 @@ type ResultPageProps = {
   guessId: string;
 };
 
+type LoadState =
+  | { status: "loading" }
+  | { status: "ready"; result: GetGuessResultResponse }
+  | { status: "error"; message: string };
+
 export function ResultPage({ guessId }: ResultPageProps) {
   const router = useRouter();
-  const result: PublicGuessResult = {
-    ...mockGuessResult,
-    guessId
-  };
+  const [state, setState] = useState<LoadState>({ status: "loading" });
   const [requestOpen, setRequestOpen] = useState(false);
   const [diaryPanelOpen, setDiaryPanelOpen] = useState(false);
   const {
@@ -51,10 +52,75 @@ export function ResultPage({ guessId }: ResultPageProps) {
     markSavedToDiary
   } = useGuessFlow();
 
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadResult() {
+      try {
+        const response = await fetch(`/api/guesses/${encodeURIComponent(guessId)}/result`, {
+          cache: "no-store"
+        });
+
+        if (!response.ok) {
+          const payload = await response.json().catch(() => null);
+          throw new Error(payload?.error?.message ?? "无法加载结果");
+        }
+
+        const data = (await response.json()) as GetGuessResultResponse;
+
+        if (!cancelled) {
+          setState({ status: "ready", result: data });
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setState({
+            status: "error",
+            message: error instanceof Error ? error.message : "无法加载结果"
+          });
+        }
+      }
+    }
+
+    loadResult();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [guessId]);
+
   function handleDiaryRequest() {
     sendDiaryRequest();
     setRequestOpen(false);
   }
+
+  if (state.status === "loading") {
+    return (
+      <AppShell>
+        <PaperPage backgroundSrc={prototypeBackgrounds.result} className="flex min-h-screen items-center justify-center pt-20">
+          <TornPaperCard tone="cream" className="p-8 text-center font-serif text-xl leading-9" tape="corner">
+            正在揭晓结果……
+          </TornPaperCard>
+        </PaperPage>
+      </AppShell>
+    );
+  }
+
+  if (state.status === "error") {
+    return (
+      <AppShell>
+        <PaperPage backgroundSrc={prototypeBackgrounds.result} className="flex min-h-screen items-center justify-center pt-20">
+          <TornPaperCard tone="cream" className="p-8 text-center font-serif text-xl leading-9" tape="corner">
+            {state.message}
+            <PaperButton className="mt-7" variant="paper" onClick={() => router.push("/")}>
+              回到首页
+            </PaperButton>
+          </TornPaperCard>
+        </PaperPage>
+      </AppShell>
+    );
+  }
+
+  const result = state.result;
 
   return (
     <AppShell statusBarDark topChrome={<ResultTopBar title={result.title} />}>
@@ -67,13 +133,13 @@ export function ResultPage({ guessId }: ResultPageProps) {
           <TornPaperCard className="ml-auto min-h-[350px] w-[72%] px-7 py-12" tape="corner">
             <div className="text-center">
               <p className="font-serif text-2xl">
-                猜中 <span className="soft-title text-[58px] text-brick-red">{result.scorePercent}</span>%
+                猜中 <span className="soft-title text-[58px] text-brick-red">{result.score}</span>%
               </p>
-              <p className="mt-1 font-serif text-lg text-coffee/68">默契度 {result.tacitScore}</p>
+              <p className="mt-1 font-serif text-lg text-coffee/68">默契度 {result.affinityScore}</p>
               <StickerTag tone="sage" className="mt-3">
                 称号
               </StickerTag>
-              <h1 className="soft-title mt-4 text-[34px]">{result.badgeTitle}</h1>
+              <h1 className="soft-title mt-4 text-[34px]">{result.title}</h1>
               <StickerTag tone="sage" className="mt-5">
                 点评
               </StickerTag>
@@ -99,7 +165,7 @@ export function ResultPage({ guessId }: ResultPageProps) {
           <TornPaperCard tone="parchment" className="font-serif text-lg leading-8">
             还差一点：
             <br />
-            {result.missedNote}
+            {result.missedKeywords.join("、") || "无"}
             <HanddrawnIcons.Heart className="ml-1 inline h-5 w-5 text-warm-orange" />
           </TornPaperCard>
           <TornPaperCard tone="cream" className="font-serif text-lg leading-8">
@@ -115,7 +181,7 @@ export function ResultPage({ guessId }: ResultPageProps) {
           <span>{result.shareText}</span>
         </TornPaperCard>
 
-        {result.canRequestDiary ? (
+        {result.canRequestDiaryAccess ? (
           <TornPaperCard tone="cream" className="mt-5 px-6 py-5 font-serif text-lg leading-8" tape="corner">
             <StickerTag tone="sage" className="mb-3">
               默契靠近
@@ -147,7 +213,7 @@ export function ResultPage({ guessId }: ResultPageProps) {
           <PaperButton
             withTape
             icon={<Send className="h-7 w-7" />}
-            onClick={() => router.push(`/rooms/${result.roomId}/play`)}
+            onClick={() => router.push("/")}
           >
             发给朋友继续猜
           </PaperButton>
@@ -273,20 +339,5 @@ function DiarySavedSheet({ open, onClose }: { open: boolean; onClose: () => void
         </motion.div>
       ) : null}
     </AnimatePresence>
-  );
-}
-
-export function OwnerResultView({ data = mockOwnerResultViewData }: { data?: OwnerResultViewData }) {
-  return (
-    <TornPaperCard tone="cream" className="space-y-3 px-5 py-5 font-serif text-lg leading-8">
-      <StickerTag tone="sage">创建者视角预留</StickerTag>
-      <p>{data.guesserName} 选择了：{data.selectedOptionLabel}</p>
-      <p>发现线索：{data.discoveredClues.join("、")}</p>
-      <p>最终猜测：{data.finalGuess}</p>
-      <p>猜中分数：{data.scorePercent}%</p>
-      <p>默契度：{data.tacitScore}</p>
-      <p>是否申请打开日记本：{data.diaryRequested ? "是" : "否"}</p>
-      <p>留言：{data.diaryRequestMessage ?? "暂无"}</p>
-    </TornPaperCard>
   );
 }

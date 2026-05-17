@@ -34,6 +34,7 @@ const capHintLevel = (level: PetChatRequest["hintLevelRequested"]) =>
 export async function generateRoomService(
   request: GenerateRoomRequest
 ): Promise<GenerateRoomResponse> {
+  await new Promise((resolve) => setTimeout(resolve, 2500));
   const roomId = makeId("room");
   const createdAt = nowIso();
   const mood = request.emotionTags[0] ?? "秘密";
@@ -72,7 +73,7 @@ export async function getRoomPlayService(
         discovered: false,
         position: { x: 50, y: 76, z: 8, layer: 42 },
         render: {
-          assetUrl: "",
+          assetUrl: "/assets/demo/clues/envelope.png",
           width: 148,
           height: 116,
           style: "foreground-paper-cutout-prop-long-shadow",
@@ -90,7 +91,7 @@ export async function getRoomPlayService(
         discovered: false,
         position: { x: 26, y: 36, z: 28, layer: 18 },
         render: {
-          assetUrl: "",
+          assetUrl: "/assets/demo/clues/clock.png",
           width: 116,
           height: 116,
           style: "flat-wall-paper-sticker-with-tape-shadow",
@@ -108,7 +109,7 @@ export async function getRoomPlayService(
         discovered: false,
         position: { x: 74, y: 38, z: 28, layer: 22 },
         render: {
-          assetUrl: "",
+          assetUrl: "/assets/demo/clues/window.png",
           width: 118,
           height: 132,
           style: "paper-cutout-window-side-prop-soft-backlight",
@@ -126,7 +127,7 @@ export async function getRoomPlayService(
         discovered: false,
         position: { x: 23, y: 60, z: 18, layer: 34 },
         render: {
-          assetUrl: "",
+          assetUrl: "/assets/demo/clues/plant.png",
           width: 112,
           height: 138,
           style: "paper-cutout-shelf-side-prop-ambient-shadow",
@@ -144,7 +145,7 @@ export async function getRoomPlayService(
         discovered: false,
         position: { x: 83, y: 58, z: 18, layer: 36 },
         render: {
-          assetUrl: "",
+          assetUrl: "/assets/demo/clues/note.png",
           width: 124,
           height: 104,
           style: "flat-wall-paper-sticker-with-tape-shadow",

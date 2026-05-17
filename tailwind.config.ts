@@ -45,6 +45,12 @@ const config: Config = {
       borderRadius: {
         paper: "6px"
       },
+      keyframes: {
+        fadeIn: {
+          from: { opacity: "0", transform: "translate(-50%, 4px)" },
+          to: { opacity: "1", transform: "translate(-50%, 0)" }
+        }
+      },
       backgroundImage: {
         "paper-fibers":
           "radial-gradient(circle at 20% 15%, rgba(121, 82, 45, 0.10), transparent 22%), radial-gradient(circle at 85% 18%, rgba(202, 147, 75, 0.12), transparent 28%), linear-gradient(100deg, rgba(255,255,255,0.24), transparent 45%)",

@@ -1,10 +1,10 @@
 import crypto from "node:crypto";
 
 import { apiError, jsonResponse, parseJsonBody } from "@/lib/api/http";
-import { generateRoomService } from "@/lib/api/mock-services";
 import { getAiProviderConfigFromEnv } from "@/lib/ai/adminConfig";
 import { generateRoomWithImages } from "@/lib/ai/generateRoomPipeline";
 import { createOpenAiCompatibleStructuredClient } from "@/lib/ai/openAiCompatible";
+import { generateRoomService } from "@/lib/api/mock-services";
 import {
   generateRoomRequestSchema,
   generateRoomResponseSchema
@@ -84,9 +84,8 @@ export async function POST(request: Request) {
   const aiConfig = getAiProviderConfigFromEnv();
 
   if (!aiConfig) {
-    const response = await generateRoomService(parsed.data);
-
-    return jsonResponse(generateRoomResponseSchema, response, 201);
+    const mockResult = await generateRoomService(parsed.data);
+    return jsonResponse(generateRoomResponseSchema, mockResult, 201);
   }
 
   try {

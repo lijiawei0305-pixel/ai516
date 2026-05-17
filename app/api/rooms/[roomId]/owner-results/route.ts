@@ -1,5 +1,4 @@
 import { apiError, jsonResponse } from "@/lib/api/http";
-import { getOwnerResultsService } from "@/lib/api/mock-services";
 import {
   getOwnerResultsParamsSchema,
   getOwnerResultsResponseSchema
@@ -27,9 +26,7 @@ export async function GET(request: Request, context: RouteContext) {
   const supabaseConfig = getSupabaseServerConfig();
 
   if (!supabaseConfig) {
-    const response = await getOwnerResultsService(roomId);
-
-    return jsonResponse(getOwnerResultsResponseSchema, response);
+    return apiError("service_unavailable", "数据库服务未配置", 503);
   }
 
   const currentUserId = getRequestUserId(request);
@@ -59,13 +56,13 @@ export async function GET(request: Request, context: RouteContext) {
       free_text_guess: string | null;
       score: number;
       affinity_score: number;
-      judge_output: { comment?: string } | null;
+      comment: string | null;
       created_at: string;
     }>
   >(
     `guess_attempts?room_id=eq.${encodeURIComponent(
       roomId
-    )}&select=id,player_id,selected_object_ids,selected_choice_index,free_text_guess,score,affinity_score,judge_output,created_at&order=created_at.desc`,
+    )}&select=id,player_id,selected_object_ids,selected_choice_index,free_text_guess,score,affinity_score,comment,created_at&order=created_at.desc`,
     { method: "GET" },
     supabaseConfig
   );
@@ -103,7 +100,7 @@ export async function GET(request: Request, context: RouteContext) {
     freeTextGuess: row.free_text_guess,
     score: row.score,
     affinityScore: row.affinity_score,
-    comment: row.judge_output?.comment ?? "",
+    comment: row.comment ?? "",
     diaryAccessRequest: accessByPlayer.get(row.player_id) ?? null,
     createdAt: row.created_at
   }));

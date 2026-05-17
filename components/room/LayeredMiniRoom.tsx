@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState, type CSSProperties } from "react";
-import { Moon, Sparkles, Star } from "lucide-react";
+import { Check, Moon, Sparkles, Star } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ClueNote } from "@/components/handbook/clue-note";
 import { PolaroidCard } from "@/components/handbook/polaroid-card";
@@ -364,6 +364,7 @@ export function LayeredMiniRoom({ room }: LayeredMiniRoomProps) {
     () => new Set(room.progress.discoveredObjectIds)
   );
   const [petOpen, setPetOpen] = useState(false);
+  const [selectedChoiceIndex, setSelectedChoiceIndex] = useState<number | null>(null);
   const discoveredCount = useMemo(
     () => room.objects.filter((object) => discoveredIds.has(object.id)).length,
     [discoveredIds, room.objects]
@@ -472,15 +473,37 @@ export function LayeredMiniRoom({ room }: LayeredMiniRoomProps) {
             你觉得这句话更像是
           </div>
           <div className="grid gap-3">
-            {room.choices.map((choice) => (
-              <button
-                key={choice.index}
-                type="button"
-                className="torn-edge paper-grain min-h-12 bg-cream px-4 py-3 text-left font-serif text-base leading-6 shadow-sticker transition hover:-translate-y-0.5 hover:shadow-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warm-orange/60"
-              >
-                {choice.label}
-              </button>
-            ))}
+            {room.choices.map((choice) => {
+              const selected = selectedChoiceIndex === choice.index;
+              return (
+                <button
+                  key={choice.index}
+                  type="button"
+                  onClick={() => setSelectedChoiceIndex(selected ? null : choice.index)}
+                  className={cn(
+                    "relative torn-edge paper-grain min-h-12 px-4 py-3 text-left font-serif text-base leading-6 shadow-sticker transition-all duration-200 active:scale-[0.98]",
+                    "hover:-translate-y-0.5 hover:shadow-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warm-orange/60",
+                    selected
+                      ? "bg-sage text-cream shadow-paper -translate-y-0.5"
+                      : "bg-cream"
+                  )}
+                >
+                  <span className="flex items-start gap-3">
+                    <span
+                      className={cn(
+                        "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+                        selected
+                          ? "border-cream bg-warm-orange"
+                          : "border-coffee/25"
+                      )}
+                    >
+                      {selected ? <Check className="h-3 w-3 text-cream" /> : null}
+                    </span>
+                    <span>{choice.label}</span>
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </TornPaperCard>
       ) : null}

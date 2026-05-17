@@ -20,7 +20,16 @@
       "Bash(npx playwright *)",
       "WebFetch(domain:docs.siliconflow.cn)",
       "Bash(python3 -m json.tool)",
-      "Bash(python3 -c ' *)"
+      "Bash(python3 -c ' *)",
+      "Bash(python3 -c \"from PIL import Image; print\\('pillow available'\\)\")",
+      "Bash(pip3 install *)",
+      "WebFetch(domain:localhost)",
+      "Bash(python3 *)",
+      "Bash(NODE_OPTIONS='--enable-source-maps' npx next build)",
+      "Bash(npx sharp-cli *)",
+      "Bash(npm list *)",
+      "Bash(git -C /Users/cc/ai516 show :lib/api/mock-services.ts)",
+      "Bash(git -C /Users/cc/ai516 diff --name-only HEAD)"
     ]
   }
 }

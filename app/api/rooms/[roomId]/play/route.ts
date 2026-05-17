@@ -1,7 +1,7 @@
 import { apiError, jsonResponse } from "@/lib/api/http";
-import { getRoomPlayService } from "@/lib/api/mock-services";
 import type { GetRoomPlayResponse } from "@/lib/contracts/api";
 import type { Json } from "@/lib/database.types";
+import { getRoomPlayService } from "@/lib/api/mock-services";
 import { buildPlayApiResponse } from "@/lib/room/buildPublicRoomData";
 import type { RoomJson } from "@/lib/room/buildRoomJson";
 import {
@@ -140,7 +140,7 @@ async function getPersistedRoomPlay(
   const config = getSupabaseServerConfig();
 
   if (!config) {
-    return null;
+    return getRoomPlayService(roomId);
   }
 
   const rows = await supabaseRest<
@@ -223,9 +223,11 @@ export async function GET(_request: Request, context: RouteContext) {
     return apiError("validation_error", "Invalid room id", 422, params.error.flatten());
   }
 
-  const response =
-    (await getPersistedRoomPlay(params.data.roomId)) ??
-    (await getRoomPlayService(params.data.roomId));
+  const response = await getPersistedRoomPlay(params.data.roomId);
+
+  if (!response) {
+    return apiError("not_found", "小屋不存在或暂未公开", 404);
+  }
 
   return jsonResponse(getRoomPlayResponseSchema, response);
 }

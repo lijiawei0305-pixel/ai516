@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Check, ChevronRight, PenLine, Send } from "lucide-react";
-import { useMemo, useState } from "react";
+import { ArrowLeft, Check, ChevronRight, Loader2, PenLine, Send } from "lucide-react";
+import { useEffect, useState } from "react";
 import { HanddrawnIcons } from "@/components/handbook/handdrawn-assets";
 import { HanddrawnIconButton } from "@/components/handbook/handdrawn-icon-button";
 import { PaperButton } from "@/components/handbook/paper-button";
@@ -11,42 +11,144 @@ import { Tape } from "@/components/handbook/tape";
 import { TornPaperCard } from "@/components/handbook/torn-paper-card";
 import { AppShell } from "@/components/layout/app-shell";
 import { PaperPage } from "@/components/layout/paper-page";
-import { mockGuessPageData, mockSubmitGuess } from "@/lib/mock-guess-result";
 import { useGuessFlow } from "@/lib/use-guess-flow";
 import { cn } from "@/lib/utils";
 import { prototypeBackgrounds } from "@/lib/prototype-backgrounds";
+import type { GetRoomPlayResponse } from "@/lib/contracts/api";
 
 type GuessPageProps = {
   roomId: string;
 };
 
+type LoadState =
+  | { status: "loading" }
+  | { status: "ready"; room: GetRoomPlayResponse }
+  | { status: "error"; message: string };
+
 export function GuessPage({ roomId }: GuessPageProps) {
   const router = useRouter();
   const setLastSubmission = useGuessFlow((state) => state.setLastSubmission);
-  const data = useMemo(
-    () => ({
-      ...mockGuessPageData,
-      roomId
-    }),
-    [roomId]
-  );
-  const [selectedOptionId, setSelectedOptionId] = useState("");
+  const [state, setState] = useState<LoadState>({ status: "loading" });
+  const [selectedChoiceIndex, setSelectedChoiceIndex] = useState<number | null>(null);
   const [ownGuess, setOwnGuess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function handleSubmit() {
-    if (!selectedOptionId || isSubmitting) return;
-    setIsSubmitting(true);
-    const submission = {
-      roomId: data.roomId,
-      selectedOptionId,
-      ownGuess,
-      discoveredObjectIds: data.clues.map((clue) => clue.id)
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadRoom() {
+      try {
+        const response = await fetch(`/api/rooms/${encodeURIComponent(roomId)}/play`, {
+          cache: "no-store"
+        });
+
+        if (!response.ok) {
+          const payload = await response.json().catch(() => null);
+          throw new Error(payload?.error?.message ?? "无法加载房间数据");
+        }
+
+        const room = (await response.json()) as GetRoomPlayResponse;
+
+        if (!cancelled) {
+          setState({ status: "ready", room });
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setState({
+            status: "error",
+            message: error instanceof Error ? error.message : "无法加载房间数据"
+          });
+        }
+      }
+    }
+
+    loadRoom();
+
+    return () => {
+      cancelled = true;
     };
-    setLastSubmission(submission);
-    const result = await mockSubmitGuess(submission);
-    router.push(`/result/${result.guessId}`);
+  }, [roomId]);
+
+  async function handleSubmit() {
+    if (state.status !== "ready") return;
+    if (selectedChoiceIndex === null && !ownGuess.trim()) return;
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+
+    const discoveredObjectIds = state.room.objects
+      .filter((obj) => obj.discovered)
+      .map((obj) => obj.id);
+
+    setLastSubmission({
+      roomId,
+      selectedOptionId: selectedChoiceIndex !== null ? String(selectedChoiceIndex) : "",
+      ownGuess,
+      discoveredObjectIds
+    });
+
+    try {
+      const response = await fetch("/api/guesses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          roomId,
+          shareToken: null,
+          selectedObjectIds: discoveredObjectIds,
+          selectedChoiceIndex,
+          freeTextGuess: ownGuess.trim() || null,
+          petConversationSummary: null
+        })
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        throw new Error(payload?.error?.message ?? "提交失败，请重试");
+      }
+
+      const result = await response.json();
+      router.push(`/result/${result.guessId}`);
+    } catch (error) {
+      setIsSubmitting(false);
+      alert(error instanceof Error ? error.message : "提交失败，请重试");
+    }
   }
+
+  if (state.status === "loading") {
+    return (
+      <AppShell>
+        <PaperPage backgroundSrc={prototypeBackgrounds.result} className="flex min-h-screen items-center justify-center pt-14">
+          <TornPaperCard tone="cream" className="p-8 text-center font-serif text-xl leading-9" tape="corner">
+            <Loader2 className="mx-auto mb-3 h-8 w-8 animate-spin text-coffee/50" />
+            正在准备猜想页面……
+          </TornPaperCard>
+        </PaperPage>
+      </AppShell>
+    );
+  }
+
+  if (state.status === "error") {
+    return (
+      <AppShell>
+        <PaperPage backgroundSrc={prototypeBackgrounds.result} className="flex min-h-screen items-center justify-center pt-14">
+          <TornPaperCard tone="cream" className="p-8 text-center font-serif text-xl leading-9" tape="corner">
+            {state.message}
+            <PaperButton className="mt-7" variant="paper" onClick={() => router.push(`/rooms/${roomId}/play`)}>
+              返回小屋
+            </PaperButton>
+          </TornPaperCard>
+        </PaperPage>
+      </AppShell>
+    );
+  }
+
+  const { room } = state;
+  const choices = room.choices ?? [];
+  const clues = room.objects.map((obj) => ({
+    id: obj.id,
+    name: obj.name ?? obj.title,
+    clue: obj.clue ?? obj.description
+  }));
 
   return (
     <AppShell>
@@ -72,7 +174,7 @@ export function GuessPage({ roomId }: GuessPageProps) {
             已收集到的线索
           </StickerTag>
           <div className="space-y-3">
-            {data.clues.map((clue, index) => (
+            {clues.map((clue, index) => (
               <TornPaperCard key={clue.id} tone="cream" className="flex items-start gap-3 px-4 py-3">
                 <span className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-sage text-sm text-cream">
                   {index + 1}
@@ -86,45 +188,49 @@ export function GuessPage({ roomId }: GuessPageProps) {
           </div>
         </section>
 
-        <section className="mt-8">
-          <StickerTag icon={<HanddrawnIcons.Heart className="h-4 w-4" />} className="mb-4 text-base">
-            你觉得它更像哪一句？
-          </StickerTag>
-          <div className="space-y-4">
-            {data.options.map((option) => {
-              const selected = selectedOptionId === option.id;
-              return (
-                <button
-                  key={option.id}
-                  type="button"
-                  onClick={() => setSelectedOptionId(option.id)}
-                  className={cn(
-                    "torn-edge paper-grain w-full bg-parchment px-5 py-4 text-left shadow-sticker transition active:translate-y-0.5",
-                    selected &&
-                      "bg-sage text-cream shadow-[0_0_0_2px_rgba(255,245,223,0.72),0_10px_18px_rgba(72,45,24,0.2)]"
-                  )}
-                >
-                  <span className="flex items-start gap-3">
-                    <span
-                      className={cn(
-                        "mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-coffee/20",
-                        selected && "border-cream bg-warm-orange"
-                      )}
-                    >
-                      {selected ? <Check className="h-4 w-4" /> : null}
-                    </span>
-                    <span>
-                      <span className="block soft-title text-xl leading-8">{option.label}</span>
-                      <span className={cn("mt-1 block font-serif text-base leading-7 text-coffee/62", selected && "text-cream/82")}>
-                        {option.description}
+        {choices.length > 0 && (
+          <section className="mt-8">
+            <StickerTag icon={<HanddrawnIcons.Heart className="h-4 w-4" />} className="mb-4 text-base">
+              你觉得它更像哪一句？
+            </StickerTag>
+            <div className="space-y-4">
+              {choices.map((choice) => {
+                const selected = selectedChoiceIndex === choice.index;
+                return (
+                  <button
+                    key={choice.index}
+                    type="button"
+                    onClick={() => setSelectedChoiceIndex(choice.index)}
+                    className={cn(
+                      "torn-edge paper-grain w-full bg-parchment px-5 py-4 text-left shadow-sticker transition-all duration-200 active:scale-[0.98]",
+                      selected &&
+                        "bg-sage text-cream shadow-[0_0_0_2px_rgba(255,245,223,0.72),0_10px_18px_rgba(72,45,24,0.2)]"
+                    )}
+                  >
+                    <span className="flex items-start gap-3">
+                      <span
+                        className={cn(
+                          "mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-coffee/20 transition-colors duration-200",
+                          selected && "border-cream bg-warm-orange"
+                        )}
+                      >
+                        {selected ? <Check className="h-4 w-4" /> : null}
+                      </span>
+                      <span>
+                        <span className="block soft-title text-xl leading-8">{choice.label}</span>
+                        {choice.description && (
+                          <span className={cn("mt-1 block font-serif text-base leading-7 text-coffee/62", selected && "text-cream/82")}>
+                            {choice.description}
+                          </span>
+                        )}
                       </span>
                     </span>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </section>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         <section className="mt-8">
           <StickerTag icon={<PenLine className="h-4 w-4" />} className="mb-4 text-base">
@@ -145,12 +251,12 @@ export function GuessPage({ roomId }: GuessPageProps) {
         <PaperButton
           className="mb-12 mt-7"
           withTape
-          disabled={!selectedOptionId || isSubmitting}
-          icon={<Send className="h-7 w-7" />}
+          disabled={(selectedChoiceIndex === null && !ownGuess.trim()) || isSubmitting}
+          icon={isSubmitting ? <Loader2 className="h-7 w-7 animate-spin" /> : <Send className="h-7 w-7" />}
           onClick={handleSubmit}
         >
           {isSubmitting ? "正在交给小屋" : "交出我的猜想"}
-          <ChevronRight className="h-7 w-7" />
+          {!isSubmitting && <ChevronRight className="h-7 w-7" />}
         </PaperButton>
       </PaperPage>
     </AppShell>

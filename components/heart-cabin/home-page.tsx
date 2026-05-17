@@ -4,22 +4,27 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
 
-const HOME_ART = "/assets/prototype/docx-derived/home-clean.png";
+const HOME_ART = "/assets/prototype/docx-derived/home-clean.webp";
+const IMG_W = 941;
+const IMG_H = 1576;
 
 export function HomePage() {
   const router = useRouter();
 
   return (
     <AppShell className="bg-[#3b2417]">
-      <main className="relative mx-auto min-h-dvh w-full max-w-[430px] overflow-y-auto">
-        <div className="relative min-h-dvh w-full">
+      <main className="relative mx-auto flex min-h-dvh w-full max-w-[430px] flex-col items-center justify-center overflow-y-auto">
+        <div
+          className="relative w-full"
+          style={{ aspectRatio: `${IMG_W} / ${IMG_H}` }}
+        >
           <Image
             src={HOME_ART}
-            alt="心事小屋首页原型底图"
+            alt="心事小屋首页"
             fill
             priority
-            sizes="430px"
-            className="pointer-events-none object-cover"
+            sizes="(max-width: 430px) 100vw, 430px"
+            className="pointer-events-none object-contain"
           />
 
           <div className="sr-only">
@@ -31,14 +36,14 @@ export function HomePage() {
             type="button"
             aria-label="把心事藏起来"
             onClick={() => router.push("/create")}
-            className="absolute z-10 left-1/2 -translate-x-1/2 top-[76%] min-h-[56px] h-[7.5%] w-[74%] rounded-full outline-none transition active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-[#f4ead7]"
+            className="absolute z-10 left-1/2 -translate-x-1/2 top-[76%] h-[7.5%] w-[74%] rounded-full outline-none transition active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-[#f4ead7]"
           />
 
           <button
             type="button"
             aria-label="看看别人怎么藏"
             onClick={() => router.push("/rooms")}
-            className="absolute z-10 left-1/2 -translate-x-1/2 top-[85%] min-h-[48px] h-[5%] w-[55%] rounded-full outline-none transition active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-[#f4ead7]"
+            className="absolute z-10 left-1/2 -translate-x-1/2 top-[85%] h-[5%] w-[55%] rounded-full outline-none transition active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-[#f4ead7]"
           />
         </div>
       </main>

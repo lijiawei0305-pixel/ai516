@@ -1,10 +1,10 @@
 import crypto from "node:crypto";
 
 import { apiError, jsonResponse, parseJsonBody } from "@/lib/api/http";
-import { submitGuessService } from "@/lib/api/mock-services";
 import { getAiProviderConfigFromEnv } from "@/lib/ai/adminConfig";
 import { judgeGuess } from "@/lib/ai/judgeGuess";
 import { createOpenAiCompatibleStructuredClient } from "@/lib/ai/openAiCompatible";
+import { submitGuessService } from "@/lib/api/mock-services";
 import { createDiaryEntriesForCompletedGuess } from "@/lib/diary/createDiaryEntry";
 import { createDiaryRepository } from "@/lib/diary/repository";
 import {
@@ -28,9 +28,8 @@ export async function POST(request: Request) {
   const supabaseConfig = getSupabaseServerConfig();
 
   if (!aiConfig || !supabaseConfig) {
-    const response = await submitGuessService(parsed.data);
-
-    return jsonResponse(submitGuessResponseSchema, response, 201);
+    const mockResult = await submitGuessService(parsed.data);
+    return jsonResponse(submitGuessResponseSchema, mockResult, 201);
   }
 
   const { roomId, shareToken, selectedObjectIds, selectedChoiceIndex, freeTextGuess } =
@@ -127,7 +126,11 @@ export async function POST(request: Request) {
         free_text_guess: freeTextGuess,
         score: judgeResult.score,
         affinity_score: judgeResult.affinityScore,
-        judge_output: judgeResult,
+        hit_keywords: judgeResult.hitKeywords,
+        missed_keywords: judgeResult.missedKeywords,
+        title: judgeResult.title,
+        comment: judgeResult.comment,
+        reveal_level: judgeResult.revealLevel,
         owner_visibility_acknowledged_at: new Date().toISOString()
       })
     },
