@@ -210,7 +210,7 @@ export const LAYOUT_SLOTS: LayoutSlot[] = [
   {
     key: "tabletop",
     label: "桌上",
-    position: { x: 42, y: 62, z: 18, layer: 30 },
+    position: { x: 52, y: 56, z: 18, layer: 30 },
     render: {
       width: 128,
       height: 128,
@@ -229,9 +229,20 @@ export const LAYOUT_SLOTS: LayoutSlot[] = [
     ]
   },
   {
+    key: "bookshelf",
+    label: "书架旁",
+    position: { x: 42, y: 36, z: 24, layer: 22 },
+    render: {
+      width: 116,
+      height: 146,
+      style: "paper-cutout-shelf-side-prop-ambient-shadow"
+    },
+    matchers: ["书", "架", "旁", "book", "shelf", "plant", "clock"]
+  },
+  {
     key: "window",
     label: "窗边",
-    position: { x: 72, y: 37, z: 28, layer: 24 },
+    position: { x: 72, y: 40, z: 28, layer: 24 },
     render: {
       width: 118,
       height: 132,
@@ -242,7 +253,7 @@ export const LAYOUT_SLOTS: LayoutSlot[] = [
   {
     key: "rug_front",
     label: "地毯前",
-    position: { x: 50, y: 82, z: 8, layer: 42 },
+    position: { x: 32, y: 80, z: 8, layer: 42 },
     render: {
       width: 148,
       height: 126,
@@ -251,20 +262,9 @@ export const LAYOUT_SLOTS: LayoutSlot[] = [
     matchers: ["地", "毯", "前", "椅", "chair", "rug", "floor", "toy"]
   },
   {
-    key: "bookshelf",
-    label: "书架旁",
-    position: { x: 22, y: 48, z: 24, layer: 22 },
-    render: {
-      width: 116,
-      height: 146,
-      style: "paper-cutout-shelf-side-prop-ambient-shadow"
-    },
-    matchers: ["书", "架", "旁", "book", "shelf", "plant", "clock"]
-  },
-  {
     key: "wall",
     label: "墙面",
-    position: { x: 52, y: 28, z: 36, layer: 12 },
+    position: { x: 22, y: 32, z: 36, layer: 12 },
     render: {
       width: 138,
       height: 106,

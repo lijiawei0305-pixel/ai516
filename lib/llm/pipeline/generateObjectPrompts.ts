@@ -15,17 +15,17 @@ const SHARED_LIGHTING_PROMPT =
   "single key light at 60 degrees from upper left, soft fill 0.3 from right, rim light from back right, consistent across all assets in this room";
 
 const CLUE_OBJECT_PROMPT_REQUIREMENTS = [
-  "single isolated 2.5D game prop asset",
+  "single isolated realistic handmade miniature object",
   "placed inside a cozy handmade cardboard miniature room",
   "slightly isometric top-front view, around 45 degree camera angle",
   "bottom-center anchor feeling",
   "standing on a floor",
   "soft contact shadow under the object",
-  "diorama miniature photography",
+  "realistic diorama macro photography, highly detailed",
   "shallow depth of field",
   "visible volume shading on the side of the object",
   "rim light from the window side",
-  "painterly brushwork with subtle handmade texture",
+  "rich texture of vintage paper, wood, or cardboard",
   "handmade cardboard and old paper texture",
   SHARED_LIGHTING_PROMPT,
   "isolated on a cream paper backdrop, no full scene",
@@ -37,22 +37,23 @@ const CLUE_OBJECT_PROMPT_REQUIREMENTS = [
   "no decal",
   "no clip art",
   "no icon",
+  "no 3D cartoon",
   "no front-facing illustration",
   "no centered isolated product photo",
   "no text",
   "no neon",
   "no cyberpunk",
-  "no photorealistic product photo"
+  "no plasticky look"
 ].join(", ");
 
 const ROOM_SHELL_BACKGROUND_PROMPT_REQUIREMENTS = [
-  "2.5D top-down mobile game room shell background",
+  "realistic diorama miniature room background",
   "handmade cardboard miniature room",
   "old paper scrapbook style",
   "back wall, left wall, right wall, warm floor",
   "window, lamp, bookshelf, desk base, plants",
   "clear empty spaces for 5 interactive clue objects",
-  "diorama miniature photography",
+  "realistic diorama macro photography, highly detailed",
   "visible volume shading on walls and floor edges",
   SHARED_LIGHTING_PROMPT,
   "soft corner shadows",
@@ -62,16 +63,16 @@ const ROOM_SHELL_BACKGROUND_PROMPT_REQUIREMENTS = [
 ].join(", ");
 
 const PET_SPRITE_PROMPT_REQUIREMENTS = [
-  "single isolated 2.5D game pet sprite",
+  "single isolated realistic handmade papercraft pet",
   "small cozy cat or dog companion",
   "slightly isometric top-front view, around 45 degree camera angle",
   "bottom-center anchor feeling",
   "standing on a floor",
   "soft contact shadow under the pet",
-  "diorama miniature photography",
+  "realistic diorama macro photography, highly detailed",
   "visible volume shading on the side of the body",
   "rim light from the window side",
-  "painterly brushwork with subtle handmade texture",
+  "rich texture of vintage paper or cardboard",
   "handmade cardboard and old paper texture",
   SHARED_LIGHTING_PROMPT,
   "isolated on a cream paper backdrop, no full scene",
@@ -83,21 +84,22 @@ const PET_SPRITE_PROMPT_REQUIREMENTS = [
   "no decal",
   "no clip art",
   "no icon",
+  "no 3D cartoon",
   "no front-facing illustration",
   "no centered isolated product photo",
   "no text",
   "no neon",
   "no cyberpunk",
-  "no photorealistic animal photo"
+  "no plasticky look"
 ].join(", ");
 
 const FOREGROUND_OCCLUDER_PROMPT_REQUIREMENTS = [
-  "single foreground occluder layer for a 2.5D mobile game room",
+  "single foreground occluder layer for a realistic miniature room",
   "handmade cardboard miniature room material",
   "old paper scrapbook style",
   "table edge, door frame, rug edge, or cardboard floor lip",
   "slightly isometric top-front view, around 45 degree camera angle",
-  "diorama miniature photography",
+  "realistic diorama macro photography",
   "visible volume shading on the edge thickness",
   "wide clean cutout silhouette",
   SHARED_LIGHTING_PROMPT,
@@ -110,16 +112,16 @@ const FOREGROUND_OCCLUDER_PROMPT_REQUIREMENTS = [
   "no clip art",
   "no neon",
   "no cyberpunk",
-  "no photorealistic product photo"
+  "no plasticky look"
 ].join(", ");
 
 const SHARED_STYLE_PROMPT = [
   "Heart Cabin visual style",
-  "old paper scrapbook style",
-  "handmade cardboard and old paper texture",
+  "vintage scrapbook style",
+  "highly detailed handmade miniature craft",
   "warm cozy lighting from upper left",
   "cozy secret miniature cabin mood",
-  "2.5D mobile game asset perspective",
+  "realistic tabletop miniature photography perspective",
   "not copying any existing game art assets"
 ].join(", ");
 
@@ -129,12 +131,14 @@ const DEFAULT_NEGATIVE_PROMPT = [
   "no decal",
   "no clip art",
   "no icon",
+  "no 3D cartoon",
+  "no generic mobile game style",
+  "no low-poly",
   "no front-facing illustration",
   "no centered isolated product photo",
   "no full room background for sprites",
-  "no realistic product photography",
-  "no photorealistic product photo",
   "no glossy plastic",
+  "no plasticky look",
   "no cyberpunk",
   "no futuristic UI",
   "no glassmorphism",

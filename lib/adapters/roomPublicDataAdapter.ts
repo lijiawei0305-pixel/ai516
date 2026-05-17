@@ -170,11 +170,11 @@ const fallbackStage: MiniRoomStage = {
 };
 
 const fallbackPositions: MiniRoomPosition[] = [
-  { x: 50, y: 76, z: 8, layer: 42 },
-  { x: 25, y: 35, z: 28, layer: 18 },
-  { x: 22, y: 58, z: 16, layer: 32 },
-  { x: 72, y: 40, z: 28, layer: 22 },
-  { x: 82, y: 58, z: 18, layer: 34 }
+  { x: 52, y: 56, z: 18, layer: 30 },  // 1. Center desk
+  { x: 42, y: 36, z: 24, layer: 22 },  // 2. Left back shelf
+  { x: 72, y: 40, z: 28, layer: 24 },  // 3. Right window sill
+  { x: 32, y: 80, z: 8, layer: 42 },   // 4. Left front rug
+  { x: 22, y: 32, z: 36, layer: 12 }   // 5. Left wall
 ];
 
 function finiteNumber(value: unknown, fallback: number) {
@@ -345,8 +345,8 @@ function adaptStage(stage: GetRoomPlayResponse["stage"] | undefined): MiniRoomSt
 function adaptPet(room: GetRoomPlayResponse): MiniRoomPet {
   const type = room.pet.type ?? (room.pet.mood === "dog" ? "dog" : "cat");
   const position = {
-    x: clampPercent(finiteNumber(room.pet.position?.x, 84)),
-    y: clampPercent(finiteNumber(room.pet.position?.y, 80)),
+    x: clampPercent(finiteNumber(room.pet.position?.x, 75)),
+    y: clampPercent(finiteNumber(room.pet.position?.y, 82)),
     z: finiteNumber(room.pet.position?.z, 8),
     layer: Math.round(finiteNumber(room.pet.position?.layer, 50))
   };

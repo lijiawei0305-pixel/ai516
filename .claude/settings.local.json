@@ -32,7 +32,17 @@
       "Bash(git -C /Users/cc/ai516 diff --name-only HEAD)",
       "Bash(awk '{print $2}')",
       "Bash(kill 38022)",
-      "Bash(xargs kill)"
+      "Bash(xargs kill)",
+      "Bash(mkdir -p ~/.ssh)",
+      "Bash(cat)",
+      "Bash(chmod 600 ~/.ssh/deploy_ai516)",
+      "Bash(ssh *)",
+      "Bash(npm run *)",
+      "Bash(tar *)",
+      "Bash(scp *)",
+      "Bash(openssl rand *)",
+      "Bash(node *)",
+      "Bash(lsof -ti:3000)"
     ]
   }
 }

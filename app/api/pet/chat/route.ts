@@ -293,30 +293,15 @@ function createRepository() {
   return config ? createSupabaseRepository(config) : demoRepository;
 }
 
-function extractStructuredOutputText(response: unknown) {
+function extractChatCompletionText(response: unknown) {
   const record = response as {
-    output_text?: unknown;
-    output?: Array<{
-      content?: Array<{
-        type?: string;
-        text?: unknown;
-      }>;
+    choices?: Array<{
+      message?: { content?: string };
     }>;
   };
 
-  if (typeof record.output_text === "string") {
-    return record.output_text;
-  }
-
-  const outputText = record.output
-    ?.flatMap((item) => item.content ?? [])
-    .find(
-      (content) =>
-        content.type === "output_text" && typeof content.text === "string"
-    )
-    ?.text;
-
-  return typeof outputText === "string" ? outputText : null;
+  const content = record.choices?.[0]?.message?.content;
+  return typeof content === "string" ? content : null;
 }
 
 function createOpenAiStructuredClient(): StructuredLlmClient | undefined {
@@ -327,9 +312,10 @@ function createOpenAiStructuredClient(): StructuredLlmClient | undefined {
   }
 
   const model = process.env.OPENAI_MODEL ?? "gpt-4o-mini";
+  const baseUrl = (process.env.OPENAI_BASE_URL ?? "https://api.openai.com/v1").replace(/\/+$/, "");
 
   return async (llmRequest) => {
-    const response = await fetch("https://api.openai.com/v1/responses", {
+    const response = await fetch(`${baseUrl}/chat/completions`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -337,19 +323,13 @@ function createOpenAiStructuredClient(): StructuredLlmClient | undefined {
       },
       body: JSON.stringify({
         model,
-        input: [
-          {
-            role: "system",
-            content: [{ type: "input_text", text: llmRequest.system }]
-          },
-          {
-            role: "user",
-            content: [{ type: "input_text", text: llmRequest.user }]
-          }
+        messages: [
+          { role: "system", content: llmRequest.system },
+          { role: "user", content: llmRequest.user }
         ],
-        text: {
-          format: {
-            type: "json_schema",
+        response_format: {
+          type: "json_schema",
+          json_schema: {
             name: llmRequest.schemaName,
             schema: llmRequest.jsonSchema,
             strict: true
@@ -360,11 +340,11 @@ function createOpenAiStructuredClient(): StructuredLlmClient | undefined {
     });
 
     if (!response.ok) {
-      throw new Error(`OPENAI_RESPONSES_${response.status}`);
+      throw new Error(`OPENAI_CHAT_COMPLETIONS_${response.status}`);
     }
 
     const payload = await response.json();
-    const text = extractStructuredOutputText(payload);
+    const text = extractChatCompletionText(payload);
 
     if (!text) {
       throw new Error("OPENAI_STRUCTURED_OUTPUT_MISSING");

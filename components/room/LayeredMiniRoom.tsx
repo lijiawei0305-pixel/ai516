@@ -79,140 +79,6 @@ function fallbackDiscovered(progressIds: Set<string>, object: MiniRoomObject) {
   return object.discovered || progressIds.has(object.id);
 }
 
-function BackgroundLayer({ room }: { room: AdaptedPublicRoom }) {
-  const background = room.stage.backgroundAsset;
-  const hasGeneratedBackground = Boolean(background?.assetUrl);
-
-  return (
-    <div className="absolute inset-0 z-0">
-      <div className="absolute inset-x-2 bottom-0 h-[92%] rounded-t-[3px] bg-[#9a6a45]/18 blur-[1px]" />
-      {background?.assetUrl ? (
-        <img
-          src={background.assetUrl}
-          alt={background.alt}
-          className="absolute inset-0 h-full w-full object-contain"
-          draggable={false}
-        />
-      ) : null}
-      {hasGeneratedBackground ? (
-        <div className="pointer-events-none absolute inset-0 shadow-[inset_0_0_34px_rgba(62,35,18,0.2)]" />
-      ) : null}
-    </div>
-  );
-}
-
-function BackWallLayer({ room }: { room: AdaptedPublicRoom }) {
-  const colors = stagePalette(room.visualTheme);
-
-  return (
-    <div className={cn("absolute inset-0 z-10 overflow-hidden", room.stage.backgroundAsset?.assetUrl && "opacity-0")}>
-      <div
-        className="absolute left-1/2 top-0 h-[94%] w-[96%] -translate-x-1/2 shadow-paper"
-        style={{
-          clipPath: "polygon(5% 24%, 50% 1%, 95% 24%, 95% 100%, 5% 100%)",
-          background: "#b58d67"
-        }}
-      >
-        <div
-          className="paper-grain absolute left-[12%] top-[14%] h-[52%] w-[76%]"
-          style={{
-            background: colors.wall,
-            boxShadow: "inset 0 -20px 30px rgba(52,30,16,0.16)"
-          }}
-        />
-        <div
-          className="absolute left-[4%] top-[24%] h-[62%] w-[23%]"
-          style={{
-            background: colors.sideWall,
-            clipPath: "polygon(0 0,100% 10%,100% 100%,0 86%)",
-            boxShadow: "inset -14px 0 22px rgba(45,25,13,0.22)"
-          }}
-        />
-        <div
-          className="absolute right-[4%] top-[24%] h-[62%] w-[23%]"
-          style={{
-            background: colors.sideWall,
-            clipPath: "polygon(0 10%,100% 0,100% 86%,0 100%)",
-            boxShadow: "inset 14px 0 22px rgba(45,25,13,0.22)"
-          }}
-        />
-        <div
-          className="absolute bottom-[3%] left-[5%] h-[39%] w-[90%]"
-          style={{
-            background: colors.floor,
-            clipPath: "polygon(21% 0,79% 0,100% 100%,0 100%)",
-            boxShadow: "inset 0 18px 22px rgba(54,31,16,0.22)"
-          }}
-        />
-        <div
-          className="absolute bottom-[3%] left-[5%] h-[39%] w-[90%] opacity-70"
-          style={{
-            clipPath: "polygon(21% 0,79% 0,100% 100%,0 100%)",
-            backgroundImage: `repeating-linear-gradient(92deg, transparent 0 26px, ${colors.floorLine} 27px 29px), repeating-linear-gradient(12deg, transparent 0 54px, ${colors.floorLine} 55px 56px)`
-          }}
-        />
-        <div className="absolute left-[9%] top-[55%] h-[26%] w-[15%] rounded-t-full bg-sage/28 shadow-[inset_-8px_0_12px_rgba(40,28,18,0.18)]" />
-        <div className="absolute right-[12%] top-[58%] h-[22%] w-[14%] rounded-t-full bg-sage/24 shadow-[inset_8px_0_12px_rgba(40,28,18,0.14)]" />
-      </div>
-    </div>
-  );
-}
-
-function FurnitureLayer({ room }: { room: AdaptedPublicRoom }) {
-  const colors = stagePalette(room.visualTheme);
-  const reduceMotion = useReducedMotion();
-  const lightPulse = reduceMotion
-    ? undefined
-    : {
-        opacity: [0.9, 1, 0.92],
-        scale: [0.99, 1.03, 1]
-      };
-
-  return (
-    <div className={cn("absolute inset-0 z-20 pointer-events-none", room.stage.backgroundAsset?.assetUrl && "opacity-0")}>
-      <div
-        className="absolute left-[18%] top-[28%] h-[17%] w-[18%] border-[5px] shadow-insetPaper"
-        style={{ borderColor: "#6e4427", background: "#f2c06c33" }}
-      />
-      <div
-        className="absolute right-[13%] top-[22%] h-[24%] w-[23%] border-[5px] shadow-insetPaper"
-        style={{ borderColor: "#6e4427", background: colors.window }}
-      >
-        <motion.div
-          className="absolute left-[36%] top-[14%]"
-          animate={lightPulse}
-          transition={{ duration: 4.8, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <Moon className="h-9 w-9 text-[#ffd976]" />
-        </motion.div>
-        <Star className="absolute bottom-5 right-4 h-5 w-5 text-[#ffd976]" />
-        <div className="absolute left-1/2 top-0 h-full w-1 -translate-x-1/2 bg-[#6e4427]" />
-        <div className="absolute left-0 top-1/2 h-1 w-full -translate-y-1/2 bg-[#6e4427]" />
-      </div>
-      <motion.div
-        className="absolute left-1/2 top-[16%] h-12 w-12 -translate-x-1/2 rounded-full bg-[#ffd470] shadow-[0_0_34px_rgba(255,205,96,0.95)]"
-        animate={lightPulse}
-        transition={{ duration: 3.6, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <div className="absolute left-1/2 top-[16%] h-[28%] w-px -translate-x-1/2 bg-[#4b2b18]/60" />
-      <div
-        className="absolute left-1/2 top-[43%] h-[14%] w-[44%] -translate-x-1/2 rounded-[3px] shadow-sticker"
-        style={{ background: colors.furniture }}
-      >
-        <div className="absolute inset-x-5 top-4 h-4 bg-cream/18" />
-        <div className="absolute bottom-2 left-8 h-14 w-3 bg-[#442715]" />
-        <div className="absolute bottom-2 right-8 h-14 w-3 bg-[#442715]" />
-      </div>
-      <div className="absolute left-[19%] top-[48%] h-[20%] w-[18%] bg-[#805333] shadow-sticker" />
-      <div className="absolute right-[17%] top-[54%] h-[18%] w-[17%] bg-[#805333] shadow-sticker" />
-      <div className="absolute left-[15%] top-[74%] h-[17%] w-[19%] rotate-[-4deg] bg-[#8b6040] shadow-sticker" />
-      <div className="absolute right-[16%] top-[74%] h-[17%] w-[19%] rotate-[4deg] bg-[#8b6040] shadow-sticker" />
-    </div>
-  );
-}
-
-const HORIZONTAL_OCCLUDER_KINDS = new Set(["table_front", "rug_front", "paper_floor_lip"]);
-
 function OccluderAsset({ asset }: { asset: MiniRoomStageAsset }) {
   const xPercent = typeof asset.anchor === "object"
     ? asset.anchor.x * 100
@@ -226,7 +92,7 @@ function OccluderAsset({ asset }: { asset: MiniRoomStageAsset }) {
     : asset.anchor === "top-left"
     ? 0
     : 100;
-  const isHorizontal = HORIZONTAL_OCCLUDER_KINDS.has(asset.kind);
+  
   const style: CSSProperties = {
     left: `${asset.position.x}%`,
     top: `${asset.position.y}%`,
@@ -234,11 +100,7 @@ function OccluderAsset({ asset }: { asset: MiniRoomStageAsset }) {
     width: asset.width * asset.scale,
     height: asset.height * asset.scale,
     opacity: asset.opacity,
-    transform: `translate(-${xPercent}%, -${yPercent}%)`,
-    ...(isHorizontal && {
-      maskImage: "linear-gradient(to bottom, transparent 0%, black 38%)",
-      WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 38%)"
-    })
+    transform: `translate(-${xPercent}%, -${yPercent}%)`
   };
 
   if (asset.assetUrl) {
@@ -253,47 +115,11 @@ function OccluderAsset({ asset }: { asset: MiniRoomStageAsset }) {
     );
   }
 
-  return (
-    <div
-      className="pointer-events-none absolute"
-      style={style}
-      aria-hidden="true"
-    >
-      {asset.kind === "table_front" ? (
-        <div className="paper-grain h-full w-full rounded-b-[3px] bg-[#6b3f22] shadow-[0_10px_16px_rgba(46,27,14,0.28),inset_0_7px_0_rgba(255,228,171,0.16)]">
-          <div className="absolute left-[14%] top-[45%] h-[55%] w-3 bg-[#432613]" />
-          <div className="absolute right-[14%] top-[45%] h-[55%] w-3 bg-[#432613]" />
-        </div>
-      ) : asset.kind === "rug_front" ? (
-        <div className="torn-edge paper-grain h-full w-full bg-sage/72 shadow-[0_-4px_8px_rgba(46,27,14,0.18)]" />
-      ) : asset.kind === "paper_floor_lip" ? (
-        <div className="paper-grain h-full w-full bg-[#b8895e] shadow-[0_-6px_12px_rgba(53,31,17,0.28)] [clip-path:polygon(0_18%,100%_0,96%_100%,4%_92%)]">
-          <div className="absolute inset-x-0 top-2 border-t-2 border-dashed border-[#4b2b18]/45" />
-        </div>
-      ) : asset.kind === "cardboard_edge" ? (
-        <div className="paper-grain h-full w-full bg-[#8a5d3d] shadow-[inset_0_0_16px_rgba(45,24,12,0.28)] [clip-path:polygon(28%_0,100%_4%,76%_100%,0_96%)]" />
-      ) : (
-        <div className="torn-edge paper-grain h-full w-full bg-parchment shadow-sticker" />
-      )}
-    </div>
-  );
+  // Fallback omitted as per request to avoid cartoon CSS
+  return null;
 }
 
-function EffectLayer() {
-  return (
-    <div className="pointer-events-none absolute inset-0 z-[7000]">
-      <div
-        className="absolute h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#ffd470]/18 blur-2xl"
-        style={{
-          left: "var(--room-light-x)",
-          top: "var(--room-light-y)"
-        }}
-      />
-      <div className="absolute inset-x-[7%] bottom-[2%] h-20 bg-gradient-to-t from-[#2d1b0f]/22 to-transparent" />
-      <div className="absolute inset-[3%] rounded-[2px] shadow-[inset_0_0_38px_rgba(62,35,18,0.22)]" />
-    </div>
-  );
-}
+import { prototypeBackgrounds } from "@/lib/prototype-backgrounds";
 
 export function LayeredMiniRoomStage({
   room,
@@ -322,17 +148,18 @@ export function LayeredMiniRoomStage({
   return (
     <div
       ref={stageRef}
-      className="relative h-full overflow-clip [overflow-clip-margin:8px]"
+      className="relative w-full overflow-clip [overflow-clip-margin:8px] perspective-[1000px] rounded-lg shadow-paper"
       aria-label="线索小屋舞台"
     >
-      <div className="absolute inset-0" style={parallaxStyle(tilt, 3)}>
-        <BackgroundLayer room={room} />
-        <BackWallLayer room={room} />
+      <div className="relative w-full" style={parallaxStyle(tilt, 2)}>
+        <img 
+          src={prototypeBackgrounds.play} 
+          alt="小屋" 
+          className="w-full h-auto object-cover" 
+          draggable={false}
+        />
       </div>
-      <div className="absolute inset-0" style={parallaxStyle(tilt, 10)}>
-        <FurnitureLayer room={room} />
-      </div>
-      <div className="absolute inset-0 z-30" style={parallaxStyle(tilt, 16)}>
+      <div className="absolute inset-0 z-30" style={parallaxStyle(tilt, 6)}>
         {sortedObjects.map((object) => (
           <RoomObjectSprite
             key={object.id}
@@ -346,12 +173,11 @@ export function LayeredMiniRoomStage({
         ))}
         <PetSprite pet={room.pet} zIndex={petZ} onSelect={onSelectPet} />
       </div>
-      <div className="pointer-events-none absolute inset-0 z-40" style={parallaxStyle(tilt, 24)}>
+      <div className="pointer-events-none absolute inset-0 z-40" style={parallaxStyle(tilt, 8)}>
         {room.stage.foreground.map((asset) => (
           <OccluderAsset key={asset.id} asset={asset} />
         ))}
       </div>
-      <EffectLayer />
     </div>
   );
 }
@@ -395,7 +221,7 @@ export function LayeredMiniRoom({ room }: LayeredMiniRoomProps) {
       ) : null}
 
       <section
-        className="relative mt-7 h-[500px]"
+        className="relative mt-7 w-full"
         aria-label="线索小屋"
       >
         <LayeredMiniRoomStage

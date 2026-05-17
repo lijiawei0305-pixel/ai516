@@ -67,7 +67,7 @@ export default function RoomPlayPage() {
 
   return (
     <AppShell>
-      <PaperPage backgroundSrc={prototypeBackgrounds.play} className="px-4 pt-14" withBinder={false}>
+      <PaperPage backgroundSrc={prototypeBackgrounds.create} className="px-4 pt-14" withBinder={false}>
         <HanddrawnIconButton
           icon={<ArrowLeft className="h-7 w-7" />}
           label="返回"
